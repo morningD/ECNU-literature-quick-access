@@ -14,9 +14,9 @@ If you're an ECNU student, you know the drill:
 2. Remember the university has database subscriptions, open the library homepage…
 3. Dig through the database list to find the WebVPN link, click it
 4. Get redirected to SSO login, type in credentials
-5. Finally see the full text... then repeat for the next paper 😭
+5. Finally see the full text... and do it all over again next time 😭
 
-**Life's too short for manual URL editing.**
+**Life's too short for this.**
 
 This Tampermonkey userscript does it all for you ✨
 
