@@ -1,6 +1,6 @@
 # 🎓 ECNU Literature Quick Access
 
-> 🚀 One-click redirect to ECNU WebVPN proxy — no more manual URL editing!
+> 🚀 Access academic databases off-campus with ease
 
 [中文](./README.md)
 

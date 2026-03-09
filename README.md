@@ -1,6 +1,6 @@
 # 🎓 ECNU 文献快速获取
 
-> 🚀 一键直达华东师范大学 WebVPN 代理，告别手动改 URL 的痛苦！
+> 🚀 校外轻松访问学术数据库
 
 [English](./README_EN.md)
 
