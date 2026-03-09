@@ -50,9 +50,16 @@ Tampermonkey is a browser extension that runs userscripts. Pick your browser:
 
 Starting from Tampermonkey 5.3+, Chrome and Edge require an extra toggle — without it, userscripts simply won't run (you installed it for nothing 😅):
 
-1. Go to your extensions page (Chrome: `chrome://extensions/` / Edge: `edge://extensions/`)
-2. Find Tampermonkey, click **Details**
-3. Enable **Allow User Scripts**!
+**Option 1: Chrome / Edge 138+ (Recommended)**
+
+1. Right-click the Tampermonkey icon → select **Manage Extension**
+2. Find and enable the **Allow User Scripts** toggle
+
+**Option 2: Older Chrome / Edge**
+
+1. Go to `chrome://extensions` (or `edge://extensions`)
+2. Enable **Developer Mode** in the top-right corner
+3. Confirm to enable the `userScripts` API
 
 > 📖 See [Tampermonkey FAQ #Q209](https://www.tampermonkey.net/faq.php#Q209) for details
 
