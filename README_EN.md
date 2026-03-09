@@ -46,18 +46,17 @@ Tampermonkey is a browser extension that runs userscripts. Pick your browser:
 | Firefox | [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/tampermonkey/) |
 | Safari | [Tampermonkey Website](https://www.tampermonkey.net/?browser=safari) |
 
-### ⚠️ Chrome Users: Read This!
+### ⚠️ Chrome / Edge Users: Read This!
 
-Starting from Tampermonkey 5.3+, Chrome requires an extra toggle — without it, userscripts simply won't run (you installed it for nothing 😅):
+Starting from Tampermonkey 5.3+, Chrome and Edge require an extra toggle — without it, userscripts simply won't run (you installed it for nothing 😅):
 
-1. Go to `chrome://extensions/`
+1. Go to your extensions page (Chrome: `chrome://extensions/` / Edge: `edge://extensions/`)
 2. Find Tampermonkey, click **Details**
-3. Scroll down and enable **Allow access to file URLs**
-4. Most importantly: enable **Allow User Scripts** (next to Developer Mode)!
+3. Enable **Allow User Scripts**!
 
 > 📖 See [Tampermonkey FAQ #Q209](https://www.tampermonkey.net/faq.php#Q209) for details
 
-Edge and Firefox users can skip this 🎉
+Firefox users can skip this 🎉
 
 ### Step 2: Install the Script 📜
 
@@ -163,7 +162,7 @@ To get the latest version:
 
 **Q: Installed but the script doesn't work?**
 
-A: Chrome users — make sure you've enabled **Allow User Scripts**. See [Chrome Users: Read This!](#️-chrome-users-read-this) above. This is the #1 gotcha!
+A: Chrome / Edge users — make sure you've enabled **Allow User Scripts**. See [Chrome / Edge Users: Read This!](#️-chrome--edge-users-read-this) above. This is the #1 gotcha!
 
 **Q: Is it safe? Will my password leak?**
 
