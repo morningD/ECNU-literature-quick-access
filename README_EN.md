@@ -11,8 +11,8 @@
 If you're an ECNU student, you know the drill:
 
 1. Find a paper on Google Scholar, click through — paywall 💸
-2. Remember the university has database subscriptions
-3. Manually transform `ieeexplore.ieee.org` into `ieeexplore-ieee-org.proxy.ecnu.edu.cn`
+2. Remember the university has database subscriptions, open the library homepage…
+3. Dig through the database list to find the WebVPN link, click it
 4. Get redirected to SSO login, type in credentials
 5. Finally see the full text... then repeat for the next paper 😭
 
@@ -201,5 +201,3 @@ For the curious:
 ---
 
 **If you find this useful, give it a Star ⭐!**
-
-*Made with ❤️ for ECNU students*
