@@ -214,6 +214,12 @@ For the curious:
 - **SSO compatibility**: Uses native `HTMLInputElement.prototype.value` setter for Angular/React/Vue form support
 - **Mapping updates**: Same-origin iframe crawling of library detail pages, no CORS issues
 
+## 🎓 Adapt for Your University
+
+Want to make one for your own university? Most Chinese universities use similar WebVPN systems, so adaptation is straightforward.
+
+We provide a complete [implementation plan (PLAN.md)](./PLAN.md) that you can feed to [Claude Code](https://claude.com/claude-code) or other AI tools to generate a script for your university. You mainly need to change the proxy domain suffix, SSO address, and form selectors — see the plan for details.
+
 ## 📄 License
 
 [Apache-2.0](./LICENSE)
