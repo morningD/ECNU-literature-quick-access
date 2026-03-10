@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ECNU 文献快速获取
 // @namespace    https://github.com/ecnu-literature-quick-access
-// @version      1.0.0
+// @version      1.1.0
 // @description  自动将学术网站 URL 跳转到华东师范大学 WebVPN 代理，支持 SSO 自动登录
 // @match        *://*/*
 // @grant        GM_setValue
@@ -37,6 +37,9 @@
       password: '密码',
       save: '保存',
       saved: '已保存',
+      matchMode: '匹配模式',
+      matchStatic: '静态匹配（仅映射表中的域名）',
+      matchDynamic: '动态匹配（自动识别相关子域名）',
       redirectMode: '跳转模式',
       autoRedirect: '自动跳转',
       manualRedirect: '手动确认',
@@ -71,6 +74,9 @@
       password: 'Password',
       save: 'Save',
       saved: 'Saved',
+      matchMode: 'Match Mode',
+      matchStatic: 'Static (mapped domains only)',
+      matchDynamic: 'Dynamic (auto-detect related subdomains)',
       redirectMode: 'Redirect Mode',
       autoRedirect: 'Auto Redirect',
       manualRedirect: 'Manual Confirm',
@@ -266,7 +272,10 @@
     // Exact match
     if (mapping[host]) return mapping[host] + PROXY_SUFFIX;
 
-    // Main-domain fuzzy match
+    // In static mode, only exact matches are used
+    if (GM_getValue('matchMode', 'static') === 'static') return null;
+
+    // Main-domain fuzzy match (dynamic mode only)
     const mainIndex = buildMainDomainIndex(mapping);
     const parts = host.split('.');
     let main;
@@ -281,6 +290,9 @@
     if (mainIndex[main]) {
       // Dynamically convert this host using the URL conversion rule
       const proxyPrefix = domainToProxy(host, mainIndex[main]);
+      // Auto-save this new domain into the mapping table for static mode
+      mapping[host] = proxyPrefix;
+      saveMapping(mapping);
       return proxyPrefix + PROXY_SUFFIX;
     }
 
@@ -701,6 +713,7 @@
 
     var lang = GM_getValue('lang', 'zh');
     var autoRedirect = GM_getValue('autoRedirect', true);
+    var matchMode = GM_getValue('matchMode', 'static');
     var ssoAutoLogin = GM_getValue('ssoAutoLogin', true);
     var creds = getCredentials();
     var mapping = getMapping();
@@ -774,6 +787,12 @@
       '<div style="margin-top:8px;">' +
         '<button class="ecnu-btn-primary" id="ecnu-save-creds">' + t('save') + '</button>' +
       '</div>' +
+      // Match mode
+      '<h3>' + t('matchMode') + '</h3>' +
+      '<div class="ecnu-radio-group" style="flex-direction:column;gap:6px;">' +
+        '<label><input type="radio" name="ecnu-match" value="static"' + (matchMode === 'static' ? ' checked' : '') + '> ' + t('matchStatic') + '</label>' +
+        '<label><input type="radio" name="ecnu-match" value="dynamic"' + (matchMode === 'dynamic' ? ' checked' : '') + '> ' + t('matchDynamic') + '</label>' +
+      '</div>' +
       // Redirect mode
       '<h3>' + t('redirectMode') + '</h3>' +
       '<div class="ecnu-radio-group">' +
@@ -814,6 +833,12 @@
         GM_setValue('lang', this.value);
         overlay.remove();
         openSettings(); // re-render with new language
+      });
+    });
+
+    panel.querySelectorAll('input[name="ecnu-match"]').forEach(function (radio) {
+      radio.addEventListener('change', function () {
+        GM_setValue('matchMode', this.value);
       });
     });
 

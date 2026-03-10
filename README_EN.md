@@ -107,6 +107,7 @@ Click **Save** and you're good to go.
 | Option | Description | Default |
 |--------|-------------|---------|
 | 🌐 Language | Chinese / English | Chinese |
+| 🎯 Match Mode | Static / Dynamic | Static |
 | 🔄 Redirect Mode | Auto / Manual | Auto |
 | 🔐 SSO Auto Login | Enable / Disable | Enabled |
 | 🗃️ Domain Mapping | View / Add / Delete / Reset | 100+ built-in |
@@ -138,6 +139,15 @@ Once configured, **just browse normally**. That's it.
 | 📐 More | AIP, RSC, SIAM, AGU, EI Compendex… |
 
 > Missing a database? See the update guide below 👇
+
+### Match Mode: Static vs Dynamic 🎯
+
+The script supports two matching modes, configurable in settings:
+
+- **Static** (default): Only redirects domains that are exactly in the mapping table. Since university databases don't change often, this is sufficient for most users.
+- **Dynamic**: In addition to exact matches, automatically detects subdomains under the same main domain. For example, if `kns.cnki.net` is in the mapping, visiting `new.cnki.net` will also be redirected. Dynamically matched domains are **automatically saved to the mapping table**, so they persist even after switching back to Static mode.
+
+> 💡 **Recommended workflow**: Use Static mode daily. If a site isn't recognized, temporarily switch to Dynamic, visit that site (the new domain gets saved automatically), then switch back to Static.
 
 ### Manual Mode
 
@@ -177,11 +187,15 @@ A: Credentials are XOR + Base64 obfuscated and stored in Tampermonkey's sandboxe
 
 **Q: Why does the script request "match all websites" permission?**
 
-A: The script needs to check whether any academic website you visit should be redirected. When the domain isn't in the mapping table, the script runs just a few lines of code and exits immediately — zero performance impact, lighter than any ad tracker on the page 🪶. Using fixed domain matching would break the dynamic mapping update feature.
+A: The script needs to check whether any academic website you visit should be redirected. When the domain isn't in the mapping table, the script runs just a few lines of code and exits immediately — zero performance impact, lighter than any ad tracker on the page 🪶
 
 **Q: Why isn't a website being redirected?**
 
-A: It might not be in the mapping table. Update mappings from the library page or add it manually in settings.
+A: Try these steps in order:
+
+1. **Update the mapping table** — visit the [ECNU Library Database List](https://lib.ecnu.edu.cn/sjk/list.htm) and click "Start Updating Mapping" — the database might have been recently added
+2. **Temporarily switch to Dynamic mode** — open settings, change Match Mode to "Dynamic", then revisit that website. Dynamic mode auto-detects subdomains and saves matched domains to the mapping table automatically. You can then switch back to Static — the new domain is already remembered ✅
+3. **Add it manually** — if neither works, manually add the domain and its proxy domain in settings
 
 **Q: Can I disable auto-redirect?**
 
