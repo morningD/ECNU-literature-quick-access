@@ -96,7 +96,7 @@ Firefox 用户不用操心这个 🎉
 
 ### 填写 SSO 凭据 🔑
 
-**首次使用时**，随便打开一个学术网站（比如 [IEEE](https://ieeexplore.ieee.org)），脚本会自动弹出设置面板，引导你配置。
+**首次使用时**，打开[华东师范大学图书馆数据库列表](https://lib.ecnu.edu.cn/sjk/list.htm)，点击 Tampermonkey 图标 🐒 → **ECNU 文献快速获取 - 设置**，即可打开设置面板。或者直接访问任意学术网站（比如 [IEEE](https://ieeexplore.ieee.org)），脚本检测到未配置凭据时也会自动弹出设置面板。
 
 在设置面板中输入你的：
 - **学号 / 工号** — 就是你登录 [公共数据库](https://portal1.ecnu.edu.cn/) 那个号

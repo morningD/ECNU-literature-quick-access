@@ -94,7 +94,7 @@ After installing, spend 30 seconds setting up your SSO credentials — everythin
 
 ### Enter SSO Credentials 🔑
 
-**On first use**, just visit any academic site (e.g. [IEEE](https://ieeexplore.ieee.org)) — the script will automatically pop up the settings panel to guide you through setup.
+**On first use**, visit the [ECNU Library Database List](https://lib.ecnu.edu.cn/sjk/list.htm), click the Tampermonkey icon 🐒 → **ECNU Literature Quick Access - Settings** to open the settings panel. Alternatively, visit any academic site (e.g. [IEEE](https://ieeexplore.ieee.org)) — the script will automatically pop up the settings panel when no credentials are configured.
 
 In the settings panel, enter:
 - **Student/Staff ID** — the one you use to log into [ECNU Portal](https://portal1.ecnu.edu.cn/)
