@@ -92,20 +92,17 @@ Done! 🎉
 
 After installing, spend 30 seconds setting up your SSO credentials — everything else is automatic.
 
-### Open the Settings Panel
-
-1. Click the **Tampermonkey icon** 🐒 in your browser toolbar
-2. Find **ECNU Literature Quick Access - Settings** and click it
-
-> 💡 You can do this on any webpage
-
 ### Enter SSO Credentials 🔑
+
+**On first use**, just visit any academic site (e.g. [IEEE](https://ieeexplore.ieee.org)) — the script will automatically pop up the settings panel to guide you through setup.
 
 In the settings panel, enter:
 - **Student/Staff ID** — the one you use to log into [ECNU Portal](https://portal1.ecnu.edu.cn/)
 - **Password** — yep, that one
 
-Click **Save** and you're good to go.
+Click **Save**, refresh the page, and the redirect kicks in 🎉
+
+> 💡 Need to change settings later? Click the **Tampermonkey icon** 🐒 → find **ECNU Literature Quick Access - Settings**
 
 > 🛡️ Credentials are XOR + Base64 obfuscated and stored in Tampermonkey's sandboxed storage, inaccessible to other websites or extensions. Still, avoid using this on public computers 🙃
 

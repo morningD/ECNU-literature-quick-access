@@ -163,7 +163,9 @@ if (proxyHost && !host.endsWith('.proxy.xxx.edu.cn')) {
 - **SSO 自动登录**：启用 / 禁用
 - **映射管理**：查看当前映射、手动添加/删除域名映射、重置为默认
 
-**⚠️ 注意**：`GM_registerMenuCommand` 必须在 `document-start` 阶段、早期 return 之前调用，否则在某些页面（如 SSO 页面）上菜单不会出现。
+**⚠️ 注意**：
+- `GM_registerMenuCommand` 必须在 `document-start` 阶段、早期 return 之前调用，否则在某些页面（如 SSO 页面）上菜单不会出现。
+- **首次使用引导**：如果用户还没配置凭据，不要自动跳转，而是弹出设置面板。这对精简版尤其重要——精简版只在已知数据库域名上运行，一访问就跳转了，用户根本没机会打开设置。
 
 ### 8. 辅助爬取（在图书馆列表页触发）
 
@@ -210,3 +212,4 @@ if (proxyHost && !host.endsWith('.proxy.xxx.edu.cn')) {
 5. **图书馆列表页只显示部分数据库** — 需要先点击"查看更多"加载全部
 6. **Mixed Content 拦截** — HTTPS 页面中用 iframe 加载 HTTP 详情页会被浏览器拦截，需转为 HTTPS
 7. **`GM_registerMenuCommand` 位置** — 必须在早期 return 之前调用，否则某些页面上设置菜单不显示
+8. **精简版首次使用无法配置** — 精简版只匹配已知域名，访问即跳转，用户没机会打开设置。解决：如果未配置凭据，不跳转，弹出设置面板引导配置
