@@ -388,20 +388,31 @@
   var proxyHost = matchHost(host);
 
   if (proxyHost) {
-    var autoRedirect = GM_getValue('autoRedirect', true);
-    if (autoRedirect) {
-      window.location.replace(
-        'https://' + proxyHost + location.pathname + location.search + location.hash
-      );
-      return; // stop script execution after redirect
-    } else {
-      // Show floating button after DOM is ready
+    // First-time setup: if no credentials configured, show settings instead of redirecting
+    if (!getCredentials()) {
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function () {
-          showRedirectButton(proxyHost);
+          openSettings();
         });
       } else {
-        showRedirectButton(proxyHost);
+        openSettings();
+      }
+    } else {
+      var autoRedirect = GM_getValue('autoRedirect', true);
+      if (autoRedirect) {
+        window.location.replace(
+          'https://' + proxyHost + location.pathname + location.search + location.hash
+        );
+        return; // stop script execution after redirect
+      } else {
+        // Show floating button after DOM is ready
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', function () {
+            showRedirectButton(proxyHost);
+          });
+        } else {
+          showRedirectButton(proxyHost);
+        }
       }
     }
   }
