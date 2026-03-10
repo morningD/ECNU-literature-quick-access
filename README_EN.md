@@ -67,15 +67,22 @@ Firefox users can skip this 🎉
 
 ### Step 2: Install the Script 📜
 
+We offer two versions — pick one (**don't install both**):
+
+| Version | File | Permissions | Features |
+|---------|------|-------------|----------|
+| 📌 **Lite** (recommended) | [`ecnu-literature-quick-access.user.js`](./ecnu-literature-quick-access.user.js) | Only known database domains | Minimal permissions, 95+ databases built-in |
+| 🔄 **Auto** | [`ecnu-literature-quick-access-auto.user.js`](./ecnu-literature-quick-access-auto.user.js) | All websites | Auto-detects subdomains, remembers new domains |
+
 **Option A: Install from GitHub (Recommended)**
 
-1. Open [`ecnu-literature-quick-access.user.js`](./ecnu-literature-quick-access.user.js) in this repo
+1. Click the file link for your chosen version above
 2. Click the **Raw** button in the top-right corner
 3. Tampermonkey will prompt you to install — click **Install**
 
 **Option B: Manual Install**
 
-1. Copy the entire content of [`ecnu-literature-quick-access.user.js`](./ecnu-literature-quick-access.user.js)
+1. Copy the entire content of the chosen `.user.js` file
 2. Click the Tampermonkey icon → **Create a new script**
 3. Delete the template, paste the code, and hit Ctrl+S to save
 
@@ -107,7 +114,7 @@ Click **Save** and you're good to go.
 | Option | Description | Default |
 |--------|-------------|---------|
 | 🌐 Language | Chinese / English | Chinese |
-| 🎯 Match Mode | Static / Dynamic | Static |
+| 🎯 Match Mode | Static / Dynamic (Auto version only) | Dynamic |
 | 🔄 Redirect Mode | Auto / Manual | Auto |
 | 🔐 SSO Auto Login | Enable / Disable | Enabled |
 | 🗃️ Domain Mapping | View / Add / Delete / Reset | 100+ built-in |
@@ -140,14 +147,17 @@ Once configured, **just browse normally**. That's it.
 
 > Missing a database? See the update guide below 👇
 
-### Match Mode: Static vs Dynamic 🎯
+### Lite vs Auto Version 🎯
 
-The script supports two matching modes, configurable in settings:
+| | Lite (recommended) | Auto |
+|--|-------------------|------|
+| Permissions | Known database domains only | All websites |
+| Matching | Exact match only | Exact + main-domain fuzzy match |
+| Auto-detect | ❌ | ✅ Auto-detects subdomains and remembers them |
+| Match Mode setting | N/A (always exact) | Toggle between Static/Dynamic |
+| Best for | Most users | Users who frequently encounter unmapped subdomains |
 
-- **Static** (default): Only redirects domains that are exactly in the mapping table. Since university databases don't change often, this is sufficient for most users.
-- **Dynamic**: In addition to exact matches, automatically detects subdomains under the same main domain. For example, if `kns.cnki.net` is in the mapping, visiting `new.cnki.net` will also be redirected. Dynamically matched domains are **automatically saved to the mapping table**, so they persist even after switching back to Static mode.
-
-> 💡 **Recommended workflow**: Use Static mode daily. If a site isn't recognized, temporarily switch to Dynamic, visit that site (the new domain gets saved automatically), then switch back to Static.
+> 💡 **Not sure which to pick? Go with Lite.** 95+ databases are built-in, and you can manually add any missing ones in settings, or switch to the Auto version later.
 
 ### Manual Mode
 
@@ -185,17 +195,17 @@ A: Chrome / Edge users — make sure you've enabled **Allow User Scripts**. See 
 
 A: Credentials are XOR + Base64 obfuscated and stored in Tampermonkey's sandboxed storage, inaccessible to other websites or extensions. That said, avoid using this on public computers 🙃
 
-**Q: Why does the script request "match all websites" permission?**
+**Q: Why does the Auto version request "match all websites" permission?**
 
-A: The script needs to check whether any academic website you visit should be redirected. When the domain isn't in the mapping table, the script runs just a few lines of code and exits immediately — zero performance impact, lighter than any ad tracker on the page 🪶
+A: The Auto version needs to check any website you visit for potential redirects. Non-matching domains exit in a few lines — zero performance impact 🪶 If you prefer minimal permissions, use the **Lite version** — it only matches known database domains.
 
 **Q: Why isn't a website being redirected?**
 
 A: Try these steps in order:
 
 1. **Update the mapping table** — visit the [ECNU Library Database List](https://lib.ecnu.edu.cn/sjk/list.htm) and click "Start Updating Mapping" — the database might have been recently added
-2. **Temporarily switch to Dynamic mode** — open settings, change Match Mode to "Dynamic", then revisit that website. Dynamic mode auto-detects subdomains and saves matched domains to the mapping table automatically. You can then switch back to Static — the new domain is already remembered ✅
-3. **Add it manually** — if neither works, manually add the domain and its proxy domain in settings
+2. **Switch to the Auto version** — if you're using the Lite version, try the [Auto version](./ecnu-literature-quick-access-auto.user.js) which auto-detects subdomains and remembers them
+3. **Add it manually** — manually add the domain and its proxy domain in settings
 
 **Q: Can I disable auto-redirect?**
 

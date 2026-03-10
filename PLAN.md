@@ -57,12 +57,18 @@
 ## 项目结构
 
 ```
-├── CLAUDE.md                             # 项目约定，给 AI 看的
-├── LICENSE                               # Apache-2.0
-├── README.md                             # 中文 README
-├── README_EN.md                          # 英文 README
-└── xxx-literature-quick-access.user.js   # Tampermonkey 用户脚本（单文件）
+├── CLAUDE.md                                  # 项目约定，给 AI 看的
+├── LICENSE                                    # Apache-2.0
+├── README.md                                  # 中文 README
+├── README_EN.md                               # 英文 README
+├── PLAN.md                                    # 实现计划（本文件）
+├── xxx-literature-quick-access.user.js        # 精简版：仅匹配已知域名
+└── xxx-literature-quick-access-auto.user.js   # 自动版：匹配所有网站，支持动态识别
 ```
+
+建议提供两个版本的脚本：
+- **精简版**（推荐给大多数用户）：`@match` 只列出已知数据库域名，权限最小
+- **自动版**：`@match *://*/*`，支持动态匹配子域名并自动记忆
 
 ## 实现方案
 

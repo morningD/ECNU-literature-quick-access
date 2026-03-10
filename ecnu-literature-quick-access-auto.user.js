@@ -1,105 +1,9 @@
 // ==UserScript==
-// @name         ECNU 文献快速获取
+// @name         ECNU 文献快速获取 (Auto)
 // @namespace    https://github.com/ecnu-literature-quick-access
 // @version      1.2.0
-// @description  自动将学术网站 URL 跳转到华东师范大学 WebVPN 代理，支持 SSO 自动登录（精简版：仅匹配已知数据库域名）
-// @match        *://www.cnki.net/*
-// @match        *://kns.cnki.net/*
-// @match        *://data.cnki.net/*
-// @match        *://r.cnki.net/*
-// @match        *://image.cnki.net/*
-// @match        *://ref.cnki.net/*
-// @match        *://data.csmar.com/*
-// @match        *://ecnu.dps.qikan.cn/*
-// @match        *://www.sslibrary.com/*
-// @match        *://edu.duxiu.com/*
-// @match        *://bz.nlcpress.com/*
-// @match        *://mg.nlcpress.com/*
-// @match        *://luxun.nlcpress.com/*
-// @match        *://jingdian.ancientbooks.cn/*
-// @match        *://www.cnbksy.com/*
-// @match        *://www.wanfangdata.com.cn/*
-// @match        *://c.wanfangdata.com.cn/*
-// @match        *://dh.ersjk.com/*
-// @match        *://www.pkulaw.cn/*
-// @match        *://www.pkulaw.com/*
-// @match        *://cadal.edu.cn/*
-// @match        *://data.lilun.cn/*
-// @match        *://www.pqdtcn.com/*
-// @match        *://www.blyun.com/*
-// @match        *://www.incopat.com/*
-// @match        *://www.airitilibrary.cn/*
-// @match        *://ebooks.airitilibrary.cn/*
-// @match        *://www.zhizhen.com/*
-// @match        *://www.ding-xiu.com/*
-// @match        *://wisesearch6.wisers.net/*
-// @match        *://gujiku.unihan.com.cn/*
-// @match        *://guji.unihan.com.cn/*
-// @match        *://www.ncpssd.cn/*
-// @match        *://www.drcnet.com.cn/*
-// @match        *://www.bjinfobank.com/*
-// @match        *://www.cnrds.com/*
-// @match        *://law.wkinfo.com.cn/*
-// @match        *://www.cfrn.com.cn/*
-// @match        *://www.shidianguji.com/*
-// @match        *://ssvideo.superlib.com/*
-// @match        *://db.resset.com/*
-// @match        *://www.webofscience.com/*
-// @match        *://webofscience.clarivate.cn/*
-// @match        *://www.sciencedirect.com/*
-// @match        *://scifinder-n.cas.org/*
-// @match        *://www.jstor.org/*
-// @match        *://jcr.clarivate.com/*
-// @match        *://esi.clarivate.com/*
-// @match        *://incites.clarivate.com/*
-// @match        *://research.ebsco.com/*
-// @match        *://search.ebscohost.com/*
-// @match        *://web.s.ebscohost.com/*
-// @match        *://www.reaxys.com/*
-// @match        *://www.scopus.com/*
-// @match        *://www.scival.com/*
-// @match        *://pubs.acs.org/*
-// @match        *://link.springer.com/*
-// @match        *://www.tandfonline.com/*
-// @match        *://onlinelibrary.wiley.com/*
-// @match        *://ieeexplore.ieee.org/*
-// @match        *://dl.acm.org/*
-// @match        *://www.proquest.com/*
-// @match        *://ebookcentral.proquest.com/*
-// @match        *://sage.cnpereading.com/*
-// @match        *://academic.oup.com/*
-// @match        *://www.nature.com/*
-// @match        *://www.sciencemag.org/*
-// @match        *://www.cambridge.org/*
-// @match        *://mathscinet.ams.org/*
-// @match        *://www.emerald.com/*
-// @match        *://heinonline.org/*
-// @match        *://advance.lexis.com/*
-// @match        *://link.gale.com/*
-// @match        *://data.imf.org/*
-// @match        *://www.degruyter.com/*
-// @match        *://www.cell.com/*
-// @match        *://bioone.org/*
-// @match        *://www.annualreviews.org/*
-// @match        *://www.oecd-ilibrary.org/*
-// @match        *://iopscience.iop.org/*
-// @match        *://pubs.aip.org/*
-// @match        *://pubs.rsc.org/*
-// @match        *://www.worldscientific.com/*
-// @match        *://epubs.siam.org/*
-// @match        *://www.jove.com/*
-// @match        *://dlib.eastview.com/*
-// @match        *://www.iresearchbook.cn/*
-// @match        *://search.alexanderstreet.com/*
-// @match        *://www.pnas.org/*
-// @match        *://academic.eb.com/*
-// @match        *://www.emis.com/*
-// @match        *://www.spiedigitallibrary.org/*
-// @match        *://www.opticsinfobase.org/*
-// @match        *://dl.sciencesocieties.org/*
-// @match        *://www.agu.org/*
-// @match        *://sso.ecnu.edu.cn/*
-// @match        *://lib.ecnu.edu.cn/sjk/list.htm*
+// @description  自动将学术网站 URL 跳转到华东师范大学 WebVPN 代理，支持 SSO 自动登录（自动版：匹配所有网站，支持动态识别子域名）
+// @match        *://*/*
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM_registerMenuCommand
@@ -133,6 +37,9 @@
       password: '密码',
       save: '保存',
       saved: '已保存',
+      matchMode: '匹配模式',
+      matchStatic: '静态匹配（仅映射表中的域名）',
+      matchDynamic: '动态匹配（自动识别相关子域名）',
       redirectMode: '跳转模式',
       autoRedirect: '自动跳转',
       manualRedirect: '手动确认',
@@ -167,6 +74,9 @@
       password: 'Password',
       save: 'Save',
       saved: 'Saved',
+      matchMode: 'Match Mode',
+      matchStatic: 'Static (mapped domains only)',
+      matchDynamic: 'Dynamic (auto-detect related subdomains)',
       redirectMode: 'Redirect Mode',
       autoRedirect: 'Auto Redirect',
       manualRedirect: 'Manual Confirm',
@@ -328,6 +238,28 @@
     GM_setValue('domainMapping', JSON.stringify(Object.assign({}, DEFAULT_MAPPING)));
   }
 
+  // Build a reverse index: mainDomain → proxyPrefix for fuzzy matching
+  function buildMainDomainIndex(mapping) {
+    const index = {};
+    for (const host of Object.keys(mapping)) {
+      const parts = host.split('.');
+      // main domain = last two parts (e.g. cnki.net, springer.com)
+      // for .com.cn style, take last three parts
+      let main;
+      if (parts.length >= 3 && parts[parts.length - 2].length <= 3 && parts[parts.length - 1].length <= 2) {
+        main = parts.slice(-3).join('.');
+      } else if (parts.length >= 2) {
+        main = parts.slice(-2).join('.');
+      } else {
+        main = host;
+      }
+      if (!index[main]) {
+        index[main] = mapping[host];
+      }
+    }
+    return index;
+  }
+
   // ============================================================
   // §4. Domain Matching
   // ============================================================
@@ -337,10 +269,42 @@
 
     const mapping = getMapping();
 
-    // Exact match only
+    // Exact match
     if (mapping[host]) return mapping[host] + PROXY_SUFFIX;
 
+    // In static mode, only exact matches are used
+    if (GM_getValue('matchMode', 'dynamic') === 'static') return null;
+
+    // Main-domain fuzzy match (dynamic mode only)
+    const mainIndex = buildMainDomainIndex(mapping);
+    const parts = host.split('.');
+    let main;
+    if (parts.length >= 3 && parts[parts.length - 2].length <= 3 && parts[parts.length - 1].length <= 2) {
+      main = parts.slice(-3).join('.');
+    } else if (parts.length >= 2) {
+      main = parts.slice(-2).join('.');
+    } else {
+      main = host;
+    }
+
+    if (mainIndex[main]) {
+      // Dynamically convert this host using the URL conversion rule
+      const proxyPrefix = domainToProxy(host, mainIndex[main]);
+      // Auto-save this new domain into the mapping table for static mode
+      mapping[host] = proxyPrefix;
+      saveMapping(mapping);
+      return proxyPrefix + PROXY_SUFFIX;
+    }
+
     return null;
+  }
+
+  // Convert a hostname to proxy prefix using the conversion rule.
+  // referenceProxy is used to determine if -443 suffix is needed.
+  function domainToProxy(host, referenceProxy) {
+    const needs443 = referenceProxy.endsWith('-443');
+    const prefix = host.replace(/-/g, '--').replace(/\./g, '-');
+    return needs443 ? prefix + '-443' : prefix;
   }
 
   // ============================================================
@@ -749,6 +713,7 @@
 
     var lang = GM_getValue('lang', 'zh');
     var autoRedirect = GM_getValue('autoRedirect', true);
+    var matchMode = GM_getValue('matchMode', 'dynamic');
     var ssoAutoLogin = GM_getValue('ssoAutoLogin', true);
     var creds = getCredentials();
     var mapping = getMapping();
@@ -822,6 +787,12 @@
       '<div style="margin-top:8px;">' +
         '<button class="ecnu-btn-primary" id="ecnu-save-creds">' + t('save') + '</button>' +
       '</div>' +
+      // Match mode
+      '<h3>' + t('matchMode') + '</h3>' +
+      '<div class="ecnu-radio-group" style="flex-direction:column;gap:6px;">' +
+        '<label><input type="radio" name="ecnu-match" value="static"' + (matchMode === 'static' ? ' checked' : '') + '> ' + t('matchStatic') + '</label>' +
+        '<label><input type="radio" name="ecnu-match" value="dynamic"' + (matchMode === 'dynamic' ? ' checked' : '') + '> ' + t('matchDynamic') + '</label>' +
+      '</div>' +
       // Redirect mode
       '<h3>' + t('redirectMode') + '</h3>' +
       '<div class="ecnu-radio-group">' +
@@ -862,6 +833,12 @@
         GM_setValue('lang', this.value);
         overlay.remove();
         openSettings(); // re-render with new language
+      });
+    });
+
+    panel.querySelectorAll('input[name="ecnu-match"]').forEach(function (radio) {
+      radio.addEventListener('change', function () {
+        GM_setValue('matchMode', this.value);
       });
     });
 
