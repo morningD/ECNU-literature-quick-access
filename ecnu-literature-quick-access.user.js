@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ECNU 文献快速获取
 // @namespace    https://github.com/ecnu-literature-quick-access
-// @version      1.2.0
+// @version      1.3.0
 // @description  自动将学术网站 URL 跳转到华东师范大学 WebVPN 代理，支持 SSO 自动登录（精简版：仅匹配已知数据库域名）
 // @match        *://www.cnki.net/*
 // @match        *://kns.cnki.net/*
@@ -45,7 +45,6 @@
 // @match        *://ssvideo.superlib.com/*
 // @match        *://db.resset.com/*
 // @match        *://www.webofscience.com/*
-// @match        *://webofscience.clarivate.cn/*
 // @match        *://www.sciencedirect.com/*
 // @match        *://scifinder-n.cas.org/*
 // @match        *://www.jstor.org/*
@@ -61,15 +60,14 @@
 // @match        *://pubs.acs.org/*
 // @match        *://link.springer.com/*
 // @match        *://www.tandfonline.com/*
-// @match        *://onlinelibrary.wiley.com/*
 // @match        *://ieeexplore.ieee.org/*
 // @match        *://dl.acm.org/*
 // @match        *://www.proquest.com/*
-// @match        *://ebookcentral.proquest.com/*
 // @match        *://sage.cnpereading.com/*
 // @match        *://academic.oup.com/*
 // @match        *://www.nature.com/*
 // @match        *://www.sciencemag.org/*
+// @match        *://www.science.org/*
 // @match        *://www.cambridge.org/*
 // @match        *://mathscinet.ams.org/*
 // @match        *://www.emerald.com/*
@@ -77,11 +75,9 @@
 // @match        *://advance.lexis.com/*
 // @match        *://link.gale.com/*
 // @match        *://data.imf.org/*
-// @match        *://www.degruyter.com/*
 // @match        *://www.cell.com/*
 // @match        *://bioone.org/*
 // @match        *://www.annualreviews.org/*
-// @match        *://www.oecd-ilibrary.org/*
 // @match        *://iopscience.iop.org/*
 // @match        *://pubs.aip.org/*
 // @match        *://pubs.rsc.org/*
@@ -91,12 +87,11 @@
 // @match        *://dlib.eastview.com/*
 // @match        *://www.iresearchbook.cn/*
 // @match        *://search.alexanderstreet.com/*
-// @match        *://www.pnas.org/*
 // @match        *://academic.eb.com/*
 // @match        *://www.emis.com/*
 // @match        *://www.spiedigitallibrary.org/*
 // @match        *://www.opticsinfobase.org/*
-// @match        *://dl.sciencesocieties.org/*
+// @match        *://opg.optica.org/*
 // @match        *://www.agu.org/*
 // @match        *://sso.ecnu.edu.cn/*
 // @match        *://lib.ecnu.edu.cn/sjk/list.htm*
@@ -251,31 +246,29 @@
 
     // --- Foreign databases ---
     'www.webofscience.com': 'www-webofscience-com-443',
-    'webofscience.clarivate.cn': 'webofscience-clarivate-cn-443',
-    'www.sciencedirect.com': 'www-sciencedirect-com',
+    'www.sciencedirect.com': 'www-sciencedirect-com-443',
     'scifinder-n.cas.org': 'scifinder--n-cas-org-443',
-    'www.jstor.org': 'www-jstor-org',
+    'www.jstor.org': 'www-jstor-org-443',
     'jcr.clarivate.com': 'jcr-clarivate-com-443',
     'esi.clarivate.com': 'esi-clarivate-com-443',
     'incites.clarivate.com': 'incites-clarivate-com-443',
     'research.ebsco.com': 'research-ebsco-com-443',
-    'search.ebscohost.com': 'search-ebscohost-com',
+    'search.ebscohost.com': 'search-ebscohost-com-443',
     'web.s.ebscohost.com': 'web-s-ebscohost-com-443',
     'www.reaxys.com': 'www-reaxys-com-443',
-    'www.scopus.com': 'www-scopus-com',
+    'www.scopus.com': 'www-scopus-com-443',
     'www.scival.com': 'www-scival-com-443',
-    'pubs.acs.org': 'pubs-acs-org',
-    'link.springer.com': 'link-springer-com',
-    'www.tandfonline.com': 'www-tandfonline-com',
-    'onlinelibrary.wiley.com': 'onlinelibrary-wiley-com',
-    'ieeexplore.ieee.org': 'ieeexplore-ieee-org',
+    'pubs.acs.org': 'pubs-acs-org-443',
+    'link.springer.com': 'link-springer-com-443',
+    'www.tandfonline.com': 'www-tandfonline-com-443',
+    'ieeexplore.ieee.org': 'ieeexplore-ieee-org-443',
     'dl.acm.org': 'dl-acm-org-443',
     'www.proquest.com': 'www-proquest-com-443',
-    'ebookcentral.proquest.com': 'ebookcentral-proquest-com-443',
     'sage.cnpereading.com': 'sage-cnpereading-com',
     'academic.oup.com': 'academic-oup-com-443',
     'www.nature.com': 'www-nature-com-443',
     'www.sciencemag.org': 'www-sciencemag-org-443',
+    'www.science.org': 'www-science-org-443',
     'www.cambridge.org': 'www-cambridge-org-443',
     'mathscinet.ams.org': 'mathscinet-ams-org-443',
     'www.emerald.com': 'www-emerald-com-443',
@@ -283,26 +276,23 @@
     'advance.lexis.com': 'advance-lexis-com',
     'link.gale.com': 'link-gale-com-443',
     'data.imf.org': 'data-imf-org-443',
-    'www.degruyter.com': 'www-degruyter-com',
     'www.cell.com': 'www-cell-com',
     'bioone.org': 'bioone-org-443',
-    'www.annualreviews.org': 'www-annualreviews-org',
-    'www.oecd-ilibrary.org': 'www-oecd--ilibrary-org',
+    'www.annualreviews.org': 'www-annualreviews-org-443',
     'iopscience.iop.org': 'iopscience-iop-org',
     'pubs.aip.org': 'pubs-aip-org-443',
-    'pubs.rsc.org': 'pubs-rsc-org',
+    'pubs.rsc.org': 'pubs-rsc-org-443',
     'www.worldscientific.com': 'www-worldscientific-com',
     'epubs.siam.org': 'epubs-siam-org',
-    'www.jove.com': 'www-jove-com',
+    'www.jove.com': 'www-jove-com-443',
     'dlib.eastview.com': 'dlib-eastview-com',
     'www.iresearchbook.cn': 'www-iresearchbook-cn-443',
     'search.alexanderstreet.com': 'search-alexanderstreet-com-443',
-    'www.pnas.org': 'www-pnas-org',
     'academic.eb.com': 'academic-eb-com-443',
     'www.emis.com': 'www-emis-com-443',
     'www.spiedigitallibrary.org': 'www-spiedigitallibrary-org',
     'www.opticsinfobase.org': 'www-opticsinfobase-org',
-    'dl.sciencesocieties.org': 'dl-sciencesocieties-org-443',
+    'opg.optica.org': 'opg-optica-org-443',
     'www.agu.org': 'www-agu-org-443',
   };
 

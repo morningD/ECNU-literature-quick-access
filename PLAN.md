@@ -213,3 +213,10 @@ if (proxyHost && !host.endsWith('.proxy.xxx.edu.cn')) {
 6. **Mixed Content 拦截** — HTTPS 页面中用 iframe 加载 HTTP 详情页会被浏览器拦截，需转为 HTTPS
 7. **`GM_registerMenuCommand` 位置** — 必须在早期 return 之前调用，否则某些页面上设置菜单不显示
 8. **精简版首次使用无法配置** — 精简版只匹配已知域名，访问即跳转，用户没机会打开设置。解决：如果未配置凭据，不跳转，弹出设置面板引导配置
+9. **域名改名导致代理跳转异常** — 有些学术网站改了域名（如 `www.sciencemag.org` → `www.science.org`，`www.opticsinfobase.org` → `opg.optica.org`），代理服务器会在内部处理 302 跳转。需要注意三种情况：
+   - **跳转目标也在映射表中**：脚本会在跳转后的页面再次触发重定向，形成循环，最终落到 `proxy.ecnu.edu.cn`。**解决：从映射表中移除跳转目标域名**（代理自己能处理内部跳转）。例：`webofscience.clarivate.cn` 从映射中移除。
+   - **用户可能直接访问新域名**：旧域名的代理可以工作（代理内部跟随跳转），但如果用户直接访问新域名，脚本不会匹配。**解决：在 `@match` 和映射表中添加新域名**。例：添加 `www.science.org` 和 `opg.optica.org`。
+   - **跳转直接跳出代理**：有些网站的跳转穿透了代理（如 `dl.sciencesocieties.org` → `wiley.scienceconnect.io`），代理无法处理。**解决：从映射表中移除该域名**。
+   - **验证方法**：关闭油猴脚本，直接访问 `https://<代理域名>.proxy.ecnu.edu.cn/`，检查最终 URL 是否仍在 `*.proxy.ecnu.edu.cn` 下。
+10. **HTTP/HTTPS 代理前缀不一致** — 图书馆页面上有些数据库登记为 HTTP（代理前缀无 `-443`），但实际网站已全面 HTTPS。代理虽然能自动升级，但多了一次重定向。更严重的是 JSTOR 等网站非 `-443` 版本直接失败。**解决：所有 HTTPS 站点的映射统一使用 `-443` 后缀。**
+11. **代理服务器不支持某些域名** — 部分域名（如 `onlinelibrary.wiley.com`、`www.degruyter.com`、`www.oecd-ilibrary.org`、`www.pnas.org` 等）的代理跳转直接穿透到外部，这是代理服务器端的问题，非脚本可修复。**解决：从映射表中移除这些域名，避免用户被导向坏掉的代理页面。** 完整审计记录见 `PROXY_CHECK.md`。
