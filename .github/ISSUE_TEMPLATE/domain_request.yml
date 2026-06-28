@@ -36,6 +36,58 @@ body:
     validations:
       required: false
 
+  - type: input
+    id: final_url
+    attributes:
+      label: Final URL or redirect target / 最终网址或跳转目标
+      description: Required for redirect loop or redirect target issues. / 重定向循环或跳转目标问题请填写。
+      placeholder: "https://proxy.ecnu.edu.cn/ or https://new-domain.example.com/"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: script_variant
+    attributes:
+      label: Script variant if this is a redirect issue / 如果是重定向问题，使用的脚本版本类型
+      options:
+        - Lite / 精简版 ecnu-literature-quick-access.user.js
+        - Auto / 自动版 ecnu-literature-quick-access-auto.user.js
+        - Not a redirect issue / 不是重定向问题
+        - Not sure / 不确定
+    validations:
+      required: true
+
+  - type: input
+    id: script_version
+    attributes:
+      label: Userscript version if known / 用户脚本版本（如已知）
+      placeholder: "v1.3.0"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: browser
+    attributes:
+      label: Browser if this is a redirect issue / 如果是重定向问题，使用的浏览器
+      options:
+        - Edge
+        - Chrome
+        - Firefox
+        - Safari
+        - Not a redirect issue / 不是重定向问题
+        - Other / 其他
+        - Not sure / 不确定
+    validations:
+      required: true
+
+  - type: input
+    id: tampermonkey_version
+    attributes:
+      label: Tampermonkey version if known / Tampermonkey 版本（如已知）
+      placeholder: "5.3.0"
+    validations:
+      required: false
+
   - type: dropdown
     id: request_type
     attributes:

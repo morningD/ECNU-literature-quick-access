@@ -44,7 +44,7 @@ The maintainer still reviews and manually verifies browser/WebVPN behavior befor
 Use a prompt like this for a scheduled Codex Automation or equivalent workflow:
 
 ```text
-Check new open issues in morningD/ECNU-literature-quick-access that do not have a triage label.
+Check new open issues in morningD/ECNU-literature-quick-access that still need maintainer triage. Include issues labeled needs-triage, and skip only issues already labeled triaged or closed by a maintainer.
 
 For each issue:
 1. Classify it as one of: needs-info, domain-mapping, redirect-loop, sso, webvpn, documentation, cannot-reproduce-cloud.

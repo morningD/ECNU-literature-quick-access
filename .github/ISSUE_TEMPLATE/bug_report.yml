@@ -52,7 +52,7 @@ body:
       description: The URL you opened before the script redirected. / 脚本重定向前你打开的网址。
       placeholder: "https://www.example-database.com/article/123"
     validations:
-      required: false
+      required: true
 
   - type: input
     id: final_url
@@ -61,7 +61,7 @@ body:
       description: The URL shown after redirect or failure. / 重定向后或失败时浏览器地址栏显示的网址。
       placeholder: "https://www-example-database-com-443.proxy.ecnu.edu.cn/article/123"
     validations:
-      required: false
+      required: true
 
   - type: textarea
     id: expected
