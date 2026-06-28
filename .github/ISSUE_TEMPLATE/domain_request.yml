@@ -1,0 +1,82 @@
+name: Domain request / 数据库域名请求
+description: Request adding, removing, or fixing an academic database domain / 请求新增、移除或修复数据库域名
+title: "[Domain]: "
+labels: ["needs-triage", "domain-mapping"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        用于请求新增或修复学术数据库域名映射。请尽量提供原始网址和数据库名称。
+
+        This form is for adding or fixing academic database domain mappings.
+
+  - type: input
+    id: database_name
+    attributes:
+      label: Database or publisher name / 数据库或出版社名称
+      placeholder: "Web of Science / JSTOR / ScienceDirect / ..."
+    validations:
+      required: true
+
+  - type: input
+    id: original_url
+    attributes:
+      label: Original URL / 原始网址
+      description: The URL users normally open. / 用户通常打开的网址。
+      placeholder: "https://www.example-database.com/"
+    validations:
+      required: true
+
+  - type: input
+    id: current_proxy_url
+    attributes:
+      label: Current proxy URL if known / 当前代理网址（如已知）
+      description: If you already tried an ECNU WebVPN proxy URL, paste it here. / 如果你已经试过 ECNU WebVPN 代理网址，请贴在这里。
+      placeholder: "https://www-example-database-com-443.proxy.ecnu.edu.cn/"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: request_type
+    attributes:
+      label: Request type / 请求类型
+      options:
+        - Add missing domain / 新增缺失域名
+        - Fix existing domain / 修复已有域名
+        - Remove broken domain / 移除失效域名
+        - Redirect loop or redirect target issue / 重定向循环或跳转目标问题
+        - Not sure / 不确定
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence or explanation / 证据或说明
+      description: Explain what works or fails. / 说明哪里可用或不可用。
+      placeholder: |
+        - Direct URL opens normally / 原始网址可正常打开
+        - Proxy URL stays inside *.proxy.ecnu.edu.cn / 代理网址保持在 *.proxy.ecnu.edu.cn 内
+        - Or: proxy redirects outside and breaks / 或：代理跳出后失败
+    validations:
+      required: true
+
+  - type: dropdown
+    id: manual_verified
+    attributes:
+      label: Have you tested through ECNU WebVPN? / 是否已通过 ECNU WebVPN 测试？
+      options:
+        - Yes, proxy works / 是，代理可用
+        - Yes, proxy fails / 是，代理失败
+        - No / 否
+        - Not sure / 不确定
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Confirmation / 确认
+      options:
+        - label: I have checked that the URL does not contain private account, token, cookie, or session information. / 我已确认网址不包含账号、token、Cookie 或 session 等隐私信息。
+          required: true
