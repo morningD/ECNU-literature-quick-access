@@ -227,6 +227,15 @@ Want to make one for your own university? Most Chinese universities use similar 
 
 We provide a complete [implementation plan (PLAN.md)](./PLAN.md) that you can feed to [Claude Code](https://claude.com/claude-code) or other AI tools to generate a script for your university. You mainly need to change the proxy domain suffix, SSO address, and form selectors — see the plan for details.
 
+## Reporting Issues 🐛
+
+If redirects, installation, SSO, or settings do not work as expected, please open an issue with the matching template:
+
+- **Bug report**: redirect, installation, SSO, or settings panel issues
+- **Domain request**: add or fix an academic database domain
+
+Automated or AI-assisted triage comments are only preliminary. They can run static checks and ask for missing details, but real ECNU WebVPN / SSO / database access behavior still needs maintainer verification in an actual browser environment.
+
 ## 📄 License
 
 [Apache-2.0](./LICENSE)
