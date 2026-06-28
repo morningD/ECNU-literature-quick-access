@@ -1,0 +1,155 @@
+name: Bug report / 问题反馈
+description: Report redirect, SSO, installation, or WebVPN behavior issues / 反馈重定向、SSO、安装或 WebVPN 问题
+title: "[Bug]: "
+labels: ["needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢反馈！为了避免维护者和机器人一起猜谜，请尽量填完整 😄
+
+        Please provide enough details so maintainers can distinguish script bugs from browser, Tampermonkey, account, or ECNU WebVPN behavior.
+
+  - type: dropdown
+    id: script_variant
+    attributes:
+      label: Script variant / 脚本版本类型
+      description: Which script are you using? / 你使用的是哪个脚本？
+      options:
+        - Lite / 精简版 ecnu-literature-quick-access.user.js
+        - Auto / 自动版 ecnu-literature-quick-access-auto.user.js
+        - Not sure / 不确定
+    validations:
+      required: true
+
+  - type: input
+    id: script_version
+    attributes:
+      label: Userscript version / 用户脚本版本
+      description: Find it in Tampermonkey or the userscript header. / 可在 Tampermonkey 或脚本头部查看。
+      placeholder: "v1.3.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: issue_type
+    attributes:
+      label: Issue type / 问题类型
+      options:
+        - Redirect does not happen / 没有自动重定向
+        - Redirect loop or wrong final page / 重定向循环或最终页面错误
+        - SSO auto-login issue / SSO 自动登录问题
+        - Installation or permission issue / 安装或权限问题
+        - Settings panel issue / 设置面板问题
+        - Other / 其他
+    validations:
+      required: true
+
+  - type: input
+    id: original_url
+    attributes:
+      label: Original URL / 原始网址
+      description: The URL you opened before the script redirected. / 脚本重定向前你打开的网址。
+      placeholder: "https://www.example-database.com/article/123"
+    validations:
+      required: true
+
+  - type: input
+    id: final_url
+    attributes:
+      label: Final URL / 最终网址
+      description: The URL shown after redirect or failure. / 重定向后或失败时浏览器地址栏显示的网址。
+      placeholder: "https://www-example-database-com-443.proxy.ecnu.edu.cn/article/123"
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior / 期望行为
+      description: What did you expect to happen? / 你原本期望发生什么？
+      placeholder: "The page should open through ECNU WebVPN proxy."
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior / 实际行为
+      description: What actually happened? Include error messages if any. / 实际发生了什么？如有错误信息请贴出。
+      placeholder: "The page redirected to proxy.ecnu.edu.cn and stopped."
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce / 复现步骤
+      description: List exact steps. / 请列出具体步骤。
+      placeholder: |
+        1. Install the lite script
+        2. Open ...
+        3. See ...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: browser
+    attributes:
+      label: Browser / 浏览器
+      options:
+        - Edge
+        - Chrome
+        - Firefox
+        - Safari
+        - Other / 其他
+    validations:
+      required: true
+
+  - type: input
+    id: browser_version
+    attributes:
+      label: Browser version / 浏览器版本
+      placeholder: "Edge 126.0.0.0"
+    validations:
+      required: false
+
+  - type: input
+    id: tampermonkey_version
+    attributes:
+      label: Tampermonkey version / Tampermonkey 版本
+      placeholder: "5.3.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: allow_user_scripts
+    attributes:
+      label: Allow User Scripts enabled? / 是否已启用 Allow User Scripts？
+      description: Required by Chrome/Edge with newer Tampermonkey versions. / 新版 Chrome/Edge + Tampermonkey 通常需要。
+      options:
+        - Yes / 是
+        - No / 否
+        - Not sure / 不确定
+        - Not applicable / 不适用
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots_logs
+    attributes:
+      label: Screenshots or logs / 截图或日志
+      description: Optional, but useful. Please remove private information. / 可选，但很有帮助。请删除隐私信息。
+      placeholder: "Paste screenshots, console messages, or Tampermonkey logs here."
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Confirmation / 确认
+      options:
+        - label: I have removed account, password, cookie, and other private information. / 我已删除账号、密码、Cookie 等隐私信息。
+          required: true
+        - label: I understand that ECNU WebVPN/SSO issues may require maintainer manual verification. / 我理解 ECNU WebVPN/SSO 问题可能需要维护者手动验证。
+          required: true
