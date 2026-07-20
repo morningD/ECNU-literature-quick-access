@@ -6,31 +6,19 @@
 // @match        *://www.cnki.net/*
 // @match        *://kns.cnki.net/*
 // @match        *://data.cnki.net/*
-// @match        *://r.cnki.net/*
-// @match        *://image.cnki.net/*
-// @match        *://ref.cnki.net/*
 // @match        *://data.csmar.com/*
 // @match        *://ecnu.dps.qikan.cn/*
 // @match        *://www.sslibrary.com/*
-// @match        *://edu.duxiu.com/*
-// @match        *://bz.nlcpress.com/*
-// @match        *://mg.nlcpress.com/*
-// @match        *://luxun.nlcpress.com/*
 // @match        *://jingdian.ancientbooks.cn/*
-// @match        *://www.cnbksy.com/*
 // @match        *://www.wanfangdata.com.cn/*
-// @match        *://c.wanfangdata.com.cn/*
 // @match        *://dh.ersjk.com/*
 // @match        *://www.pkulaw.cn/*
 // @match        *://www.pkulaw.com/*
-// @match        *://cadal.edu.cn/*
-// @match        *://data.lilun.cn/*
 // @match        *://www.pqdtcn.com/*
 // @match        *://www.blyun.com/*
 // @match        *://www.incopat.com/*
 // @match        *://www.airitilibrary.cn/*
 // @match        *://ebooks.airitilibrary.cn/*
-// @match        *://www.zhizhen.com/*
 // @match        *://www.ding-xiu.com/*
 // @match        *://wisesearch6.wisers.net/*
 // @match        *://gujiku.unihan.com.cn/*
@@ -42,8 +30,6 @@
 // @match        *://law.wkinfo.com.cn/*
 // @match        *://www.cfrn.com.cn/*
 // @match        *://www.shidianguji.com/*
-// @match        *://ssvideo.superlib.com/*
-// @match        *://db.resset.com/*
 // @match        *://www.webofscience.com/*
 // @match        *://www.sciencedirect.com/*
 // @match        *://scifinder-n.cas.org/*
@@ -205,31 +191,19 @@
     'www.cnki.net': 'www-cnki-net',
     'kns.cnki.net': 'kns-cnki-net-443',
     'data.cnki.net': 'data-cnki-net',
-    'r.cnki.net': 'r-cnki-net',
-    'image.cnki.net': 'image-cnki-net-443',
-    'ref.cnki.net': 'ref-cnki-net-443',
     'data.csmar.com': 'data-csmar-com-443',
     'ecnu.dps.qikan.cn': 'ecnu-dps-qikan-cn-443',
     'www.sslibrary.com': 'www-sslibrary-com-443',
-    'edu.duxiu.com': 'edu-duxiu-com',
-    'bz.nlcpress.com': 'bz-nlcpress-com',
-    'mg.nlcpress.com': 'mg-nlcpress-com',
-    'luxun.nlcpress.com': 'luxun-nlcpress-com-443',
     'jingdian.ancientbooks.cn': 'jingdian-ancientbooks-cn-443',
-    'www.cnbksy.com': 'www-cnbksy-com-443',
     'www.wanfangdata.com.cn': 'www-wanfangdata-com-cn',
-    'c.wanfangdata.com.cn': 'c-wanfangdata-com-cn-443',
     'dh.ersjk.com': 'dh-ersjk-com',
     'www.pkulaw.cn': 'www-pkulaw-cn',
     'www.pkulaw.com': 'www-pkulaw-com-443',
-    'cadal.edu.cn': 'cadal-edu-cn-443',
-    'data.lilun.cn': 'data-lilun-cn',
     'www.pqdtcn.com': 'www-pqdtcn-com',
     'www.blyun.com': 'www-blyun-com',
     'www.incopat.com': 'www-incopat-com-443',
     'www.airitilibrary.cn': 'www-airitilibrary-cn-443',
     'ebooks.airitilibrary.cn': 'ebooks-airitilibrary-cn-443',
-    'www.zhizhen.com': 'www-zhizhen-com',
     'www.ding-xiu.com': 'www-ding--xiu-com',
     'wisesearch6.wisers.net': 'wisesearch6-wisers-net-443',
     'gujiku.unihan.com.cn': 'gujiku-unihan-com-cn-443',
@@ -241,8 +215,6 @@
     'law.wkinfo.com.cn': 'law-wkinfo-com-cn-443',
     'www.cfrn.com.cn': 'www-cfrn-com-cn-443',
     'www.shidianguji.com': 'www-shidianguji-com-443',
-    'ssvideo.superlib.com': 'ssvideo-superlib-com-443',
-    'db.resset.com': 'db-resset-com-443',
 
     // --- Foreign databases ---
     'www.webofscience.com': 'www-webofscience-com-443',
