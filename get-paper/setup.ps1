@@ -35,6 +35,7 @@ function Configure-Credentials {
   [IO.File]::WriteAllBytes("$CredFile.bin", $encrypted)
   Remove-Item $CredFile
   Say "凭据已加密保存到 $CredFile.bin（仅当前 Windows 用户可解密）"
+    Warn "注意：当前工具链（renew-session / skill）尚未接入该加密文件的读取，Windows 下请改用明文文件方式：手动创建 %USERPROFILE%\.config\get-paper\credentials.json"
 }
 
 function Remove-All {

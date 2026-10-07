@@ -1,245 +1,163 @@
 # 🎓 ECNU Literature Quick Access
 
-> 🚀 Access academic databases off-campus with ease
+> 🚀 Access academic databases off-campus · Let your AI assistant download papers automatically
 
-[中文](./README.md)
+[中文](./README.md) · [FAQ (skill)](./get-paper/FAQ.md)
+
+**Choose your entry point:**
+
+| I use… | Go to | What it does |
+|---------|-------|--------------|
+| 🌐 **A browser** (reading papers) | [Userscript →](#userscript) | Auto-redirect academic sites to the ECNU proxy + auto SSO login, invisible after install |
+| 🤖 **An AI assistant** (ZCode / Claude Code / …) | [get-paper skill →](#get-paper-skill) | Say one sentence; the AI resolves and downloads the paper PDF (open access + paywalled databases) |
+
+The two parts are independent — install either one. The userscript's database mapping table also feeds the skill.
 
 ---
 
-## 😩 The Problem
+## Contents
 
-If you're an ECNU student, you know the drill:
+- [Userscript](#userscript) — install in 3 steps · supported databases · FAQ
+- [get-paper skill](#get-paper-skill) — install · examples · privacy · tests
+- [Adapting to other universities](#adapting-to-other-universities)
+- [Documentation index](#documentation-index)
 
-1. Find a paper on Google Scholar, click through — paywall 💸
-2. Remember the university has database subscriptions, open the library homepage…
-3. Dig through the database list to find the WebVPN link, click it
-4. Get redirected to SSO login, type in credentials
-5. Finally see the full text... and do it all over again next time 😭
+---
 
-**Life's too short for this.**
+## Userscript
 
-This Tampermonkey userscript does it all for you ✨
+An auto-redirect + auto-SSO-login userscript for browser users.
 
-## ✨ Features
+### Install in 3 steps
 
-| Feature | Description |
-|---------|-------------|
-| 🔄 **Auto Redirect** | Automatically redirects academic websites to ECNU proxy URLs |
-| 🖱️ **Manual Mode** | Prefer control? Switch to a floating button for manual confirmation |
-| 🔐 **SSO Auto Login** | Automatically fills in your credentials on the SSO page |
-| 🗃️ **Smart Mapping** | 100+ built-in database mappings, with auto-update capability |
-| 🌐 **Bilingual UI** | Chinese / English interface |
-| 🛡️ **Secure Storage** | Credentials are obfuscated and stored in Tampermonkey's sandboxed storage |
+1. **Install Tampermonkey**: [Chrome](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo) / [Edge](https://microsoftedge.microsoft.com/addons/detail/tampermonkey/iikmkjmpaadaobahmlepeloendndfphd)
+   ⚠️ Chrome/Edge 138+ requires **Allow User Scripts** enabled on the extension page, otherwise the script won't run.
+2. **Install the script**: open [`ecnu-literature-quick-access.user.js`](./ecnu-literature-quick-access.user.js) → Raw → Tampermonkey prompt. (Need dynamic subdomain detection? Use the [auto version](./ecnu-literature-quick-access-auto.user.js) — don't install both.)
+3. **Configure credentials**: open the [library database list](https://lib.ecnu.edu.cn/sjk/list.htm) → Tampermonkey icon → **ECNU Literature Quick Access - Settings** → enter your student ID and password (stored obfuscated in the sandbox).
 
-## 📦 Installation
+Then just browse normally: visiting IEEE/ACM/ScienceDirect etc. auto-redirects to the proxy URL, and the first SSO login is filled in automatically.
 
-Two steps: install the Tampermonkey extension, then install our script. Easy peasy ☕
+### Features
 
-### Step 1: Install Tampermonkey 🐒
+| Feature | Notes |
+|---------|-------|
+| 🔄 Auto-redirect | 90+ database mappings (CNKI/Wanfang/WoS/Scopus/IEEE/ACM/ScienceDirect/Springer/Nature/ACS/RSC…); new library databases can be synced from the list page |
+| 🔐 Auto SSO login | Fills student ID + password (native setters, Angular-compatible) |
+| 🖱️ Manual mode | Switchable to a floating confirm button |
+| 🌐 Bilingual UI | Chinese / English |
 
-Tampermonkey is a browser extension that runs userscripts. Pick your browser:
+### Userscript FAQ
 
-| Browser | Install Link |
-|---------|-------------|
-| Chrome | [Chrome Web Store](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo) |
-| Edge | [Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/tampermonkey/iikmkjmpaadaobahmlepeloendndfphd) |
-| Firefox | [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/tampermonkey/) |
-| Safari | [Tampermonkey Website](https://www.tampermonkey.net/?browser=safari) |
+<details>
+<summary>Expand</summary>
 
-### ⚠️ Chrome / Edge Users: Read This!
+- **Installed but not working** → check the "Allow User Scripts" switch (most common)
+- **A site doesn't redirect** → update the mapping → switch to the auto version → or add the domain manually in settings
+- **Wiley doesn't open** → Wiley's auth rejects the proxy domain (upstream issue, see [PROXY_CHECK.md](./PROXY_CHECK.md))
 
-Starting from Tampermonkey 5.3+, Chrome and Edge require an extra toggle — without it, userscripts simply won't run (you installed it for nothing 😅):
+</details>
 
-**Option 1: Chrome / Edge 138+ (Recommended)**
+---
 
-1. Right-click the Tampermonkey icon → select **Manage Extension**
-2. Find and enable the **Allow User Scripts** toggle
+## get-paper skill
 
-**Option 2: Older Chrome / Edge**
+A paper-download skill for AI assistants. Tell your assistant "download this paper" and it automatically: **resolves the DOI (5-source cross-validation) → prefers open-access copies (arXiv/ACL/AAAI/repositories) → falls back to paywalled databases via the ECNU WebVPN proxy → verifies PDF integrity**.
 
-1. Go to `chrome://extensions` (or `edge://extensions`)
-2. Enable **Developer Mode** in the top-right corner
-3. Confirm to enable the `userScripts` API
+### Verified routes (all tested)
 
-> 📖 See [Tampermonkey FAQ #Q209](https://www.tampermonkey.net/faq.php#Q209) for details
+| Source | Route | Status |
+|--------|-------|--------|
+| arXiv / OA repositories / ACL Anthology / AAAI / MDPI | direct open download | ✅ |
+| ACM Digital Library (incl. VLDB/PACMMOD) | curl + WebVPN session | ✅ |
+| IEEE Xplore (3 steps: article page → stamp warm-up → getPDF) | curl + WebVPN session | ✅ |
+| Wiley (OA articles, `pdfdirect` endpoint) | in-page browser extraction | ✅ |
+| ScienceDirect | ⚠️ Cloudflare challenge — see [FAQ](./get-paper/FAQ.md) |
 
-Firefox users can skip this 🎉
+Batch field test: 10 papers from a scholar's profile — **10/10 fully automatic** (6 open + 2 ACM + 2 IEEE), zero manual intervention.
 
-### Step 2: Install the Script 📜
+### Install (~1 minute)
 
-We offer two versions — pick one (**don't install both**):
+```bash
+git clone https://github.com/morningD/ECNU-literature-quick-access.git
+cd ECNU-literature-quick-access
+bash get-paper/setup.sh
+```
 
-| Version | File | Permissions | Features |
-|---------|------|-------------|----------|
-| 📌 **Lite** (recommended) | [`ecnu-literature-quick-access.user.js`](./ecnu-literature-quick-access.user.js) | Only known database domains | Minimal permissions, 95+ databases built-in |
-| 🔄 **Auto** | [`ecnu-literature-quick-access-auto.user.js`](./ecnu-literature-quick-access-auto.user.js) | All websites | Auto-detects subdomains, remembers new domains |
+> ⚠️ **The cloned directory IS the installation**: the skill is a symlink to this location — don't delete or move it (re-run setup.sh after moving).
+> Requirements: node ≥ 18, curl, pdftotext (PDF verification); session renewal also needs playwright (see the [FAQ](./get-paper/FAQ.md)).
 
-**Option A: Install from GitHub (Recommended)**
+Setup walks you through 3 steps (GUI dialogs or terminal): **① install the skill** (symlink, auto-discovered by AI assistants) → **② configure ECNU SSO credentials** (Keychain / secret-tool / 600-perm file) → **③ API keys (optional)**.
 
-1. Click the file link for your chosen version above
-2. Click the **Raw** button in the top-right corner
-3. Tampermonkey will prompt you to install — click **Install**
+```bash
+bash get-paper/setup.sh --check               # configuration status
+bash get-paper/setup.sh --reset               # reconfigure
+bash get-paper/setup.sh --remove-credentials  # remove credentials
+```
 
-**Option B: Manual Install**
+Stuck? Check **[get-paper/FAQ.md](./get-paper/FAQ.md)** first (organized by symptom: setup, download failures, rate limits, known limitations).
 
-1. Copy the entire content of the chosen `.user.js` file
-2. Click the Tampermonkey icon → **Create a new script**
-3. Delete the template, paste the code, and hit Ctrl+S to save
+### Usage examples
 
-Done! 🎉
+**Conversational** (say this to an AI assistant with the skill installed):
 
-## 🔧 Configuration
+```text
+Use get-paper to download this paper: 10.1145/3589334.3645520
+Download the last 5 years of papers from https://scholar.google.com/citations?user=xxxx
+Download "HugNLP: A unified and comprehensive library for natural language processing"
+```
 
-After installing, spend 30 seconds setting up your SSO credentials — everything else is automatic.
+**Command line** (scripts standalone):
 
-### Enter SSO Credentials 🔑
+```bash
+node get-paper/scripts/resolve.mjs title "ModelGo: A Practical Tool for ..."        # title → DOI (5-source)
+node get-paper/scripts/resolve.mjs doi "10.18653/v1/2025.findings-acl.259"          # DOI → metadata + OA link
+node get-paper/scripts/resolve.mjs author "Bingsheng He" --since 2015               # author → papers
+node get-paper/scripts/proxy-url.js "https://ieeexplore.ieee.org/document/9644782"  # → proxy URL
+bash get-paper/scripts/fetch-paper.sh "https://arxiv.org/pdf/2508.04586" paper.pdf  # download + verify
+node get-paper/scripts/renew-session.mjs                                           # renew WebVPN session
+```
 
-**On first use**, visit the [ECNU Library Database List](https://lib.ecnu.edu.cn/sjk/list.htm), click the Tampermonkey icon 🐒 → **ECNU Literature Quick Access - Settings** to open the settings panel. Alternatively, visit any academic site (e.g. [IEEE](https://ieeexplore.ieee.org)) — the script will automatically pop up the settings panel when no credentials are configured.
+**Batch dispatch**: the skill manual passed subagent self-sufficiency tests — batch download tasks can be dispatched to multiple AI subagents in parallel (see [DEVLOG.md](./get-paper/DEVLOG.md)).
 
-In the settings panel, enter:
-- **Student/Staff ID** — the one you use to log into [ECNU Portal](https://portal1.ecnu.edu.cn/)
-- **Password** — yep, that one
+### Privacy & security
 
-Click **Save**, refresh the page, and the redirect kicks in 🎉
+- SSO credentials stay on your machine (Keychain / secret-tool / 600-perm file); login requests go directly to the university SSO — **never through any third party**
+- Session cookies and API keys live in `~/.config/get-paper/` (600 permissions)
+- This repository contains no personal credentials; PDFs are downloaded from publishers / the official university WebVPN proxy
 
-> 💡 Need to change settings later? Click the **Tampermonkey icon** 🐒 → find **ECNU Literature Quick Access - Settings**
+### Tests & maintenance
 
-> 🛡️ Credentials are XOR + Base64 obfuscated and stored in Tampermonkey's sandboxed storage, inaccessible to other websites or extensions. Still, avoid using this on public computers 🙃
+```bash
+bash get-paper/scripts/test-suite.sh      # download-route regression
+node get-paper/scripts/test-resolve.mjs   # resolver red/green/yellow tests
+node get-paper/scripts/update-mapping.mjs # sync mapping from the userscript
+```
 
-### Other Settings
+Test suites live in `get-paper/data/`; all expectations are verified against authoritative APIs. PRs adding new publisher cases are welcome.
 
-| Option | Description | Default |
-|--------|-------------|---------|
-| 🌐 Language | Chinese / English | Chinese |
-| 🎯 Match Mode | Static / Dynamic (Auto version only) | Dynamic |
-| 🔄 Redirect Mode | Auto / Manual | Auto |
-| 🔐 SSO Auto Login | Enable / Disable | Enabled |
-| 🗃️ Domain Mapping | View / Add / Delete / Reset | 100+ built-in |
+---
 
-## 🚀 Usage
+## Adapting to other universities
 
-Once configured, **just browse normally**. That's it.
+Both the userscript and the skill target the ECNU WebVPN. Most university WebVPN systems are similar — see [PLAN.md](./PLAN.md) to have an AI generate an adapted version (change the proxy domain suffix, SSO URL, and form selectors).
 
-### Daily Use 🏄‍♂️
+## Documentation index
 
-1. Search for papers, click links as usual
-2. When you land on a supported academic website, the script auto-redirects to the proxy
-3. First time: SSO login page pops up → script auto-fills credentials and logs you in
-4. You see the full text 🎉
+| Doc | Contents |
+|-----|----------|
+| [get-paper/SKILL.md](./get-paper/SKILL.md) | Full skill manual (the AI assistant's execution basis) |
+| [get-paper/FAQ.md](./get-paper/FAQ.md) | Troubleshooting by symptom |
+| [get-paper/references/databases.md](./get-paper/references/databases.md) | Per-database tested download patterns & pitfalls |
+| [get-paper/DEVLOG.md](./get-paper/DEVLOG.md) | Development log (rate-limit map, anti-bot lessons, architecture decisions) |
+| [PROXY_CHECK.md](./PROXY_CHECK.md) | Proxy domain compatibility audit (userscript) |
+| [PLAN.md](./PLAN.md) | Plan for adapting to other universities |
 
-**You won't even notice the script is working** — and that's the point 😎
+---
 
-### Supported Databases
-
-100+ built-in database mappings covering major academic resources:
-
-| Category | Databases |
-|----------|-----------|
-| 📚 Chinese | CNKI, Wanfang, VIP, CSMAR, CSSCI… |
-| 🌍 General | Web of Science, Scopus, JCR, ProQuest, EBSCO… |
-| 🔬 STEM | ScienceDirect, IEEE Xplore, SpringerLink, ACM, Nature… |
-| 📗 Social Sciences | JSTOR, Taylor & Francis, Wiley, Cambridge, Oxford… |
-| 🧪 Chemistry | ACS, Reaxys, SciFinder… |
-| 📐 More | AIP, RSC, SIAM, AGU, EI Compendex… |
-
-> Missing a database? See the update guide below 👇
-
-### Lite vs Auto Version 🎯
-
-| | Lite (recommended) | Auto |
-|--|-------------------|------|
-| Permissions | Known database domains only | All websites |
-| Matching | Exact match only | Exact + main-domain fuzzy match |
-| Auto-detect | ❌ | ✅ Auto-detects subdomains and remembers them |
-| Match Mode setting | N/A (always exact) | Toggle between Static/Dynamic |
-| Best for | Most users | Users who frequently encounter unmapped subdomains |
-
-> 💡 **Not sure which to pick? Go with Lite.** 95+ databases are built-in, and you can manually add any missing ones in settings, or switch to the Auto version later.
-
-### Manual Mode
-
-If you prefer not to auto-redirect (sometimes you just want the original page), switch to **Manual Confirm** mode in settings. A blue floating button will appear when you visit a supported site — click it to redirect.
-
-## 🔄 Updating
-
-### Update Database Mappings
-
-The script comes with 100+ mappings, but the library may add new databases. To update:
-
-1. Visit the [ECNU Library Database List](https://lib.ecnu.edu.cn/sjk/list.htm)
-2. A green **"Start Updating Mapping"** button appears in the bottom-right corner
-3. Click it — the script will scan all database detail pages (takes ~30 seconds)
-4. Done! The mapping count is shown when finished 🎉
-
-You can also manually add individual domain mappings in the settings panel.
-
-### Update Script Version 📦
-
-To get the latest version:
-
-- **GitHub**: Visit this repo and click Raw to reinstall — it overwrites the old version
-- **Manual**: Copy the latest `.user.js` content and paste it into Tampermonkey's editor
-
-> 💡 Check back occasionally for updates — bug fixes and new features drop from time to time~
-
-## 🤔 FAQ
-
-**Q: Installed but the script doesn't work?**
-
-A: Chrome / Edge users — make sure you've enabled **Allow User Scripts**. See [Chrome / Edge Users: Read This!](#️-chrome--edge-users-read-this) above. This is the #1 gotcha!
-
-**Q: Is it safe? Will my password leak?**
-
-A: Credentials are XOR + Base64 obfuscated and stored in Tampermonkey's sandboxed storage, inaccessible to other websites or extensions. That said, avoid using this on public computers 🙃
-
-**Q: Why does the Auto version request "match all websites" permission?**
-
-A: The Auto version needs to check any website you visit for potential redirects. Non-matching domains exit in a few lines — zero performance impact 🪶 If you prefer minimal permissions, use the **Lite version** — it only matches known database domains.
-
-**Q: Why isn't a website being redirected?**
-
-A: Try these steps in order:
-
-1. **Update the mapping table** — visit the [ECNU Library Database List](https://lib.ecnu.edu.cn/sjk/list.htm) and click "Start Updating Mapping" — the database might have been recently added
-2. **Switch to the Auto version** — if you're using the Lite version, try the [Auto version](./ecnu-literature-quick-access-auto.user.js) which auto-detects subdomains and remembers them
-3. **Add it manually** — manually add the domain and its proxy domain in settings
-
-**Q: Can I disable auto-redirect?**
-
-A: Yes! Switch to **Manual Confirm** mode in settings.
-
-**Q: Can I still use this after graduation?**
-
-A: That depends on when the university deactivates your account... Download more papers while you can 📝
-
-## 🏗️ Technical Details
-
-For the curious:
-
-- **URL conversion**: `.` → `-` in domain, existing `-` → `--`, HTTPS databases get `-443` suffix
-- **Zero overhead**: `@run-at document-start`, non-matching domains return immediately
-- **SSO compatibility**: Uses native `HTMLInputElement.prototype.value` setter for Angular/React/Vue form support
-- **Mapping updates**: Same-origin iframe crawling of library detail pages, no CORS issues
-
-## 🎓 Adapt for Your University
-
-Want to make one for your own university? Most Chinese universities use similar WebVPN systems, so adaptation is straightforward.
-
-We provide a complete [implementation plan (PLAN.md)](./PLAN.md) that you can feed to [Claude Code](https://claude.com/claude-code) or other AI tools to generate a script for your university. You mainly need to change the proxy domain suffix, SSO address, and form selectors — see the plan for details.
-
-## Reporting Issues 🐛
-
-If redirects, installation, SSO, or settings do not work as expected, please open an issue with the matching template:
-
-- **Bug report**: redirect, installation, SSO, or settings panel issues
-- **Domain request**: add or fix an academic database domain
-
-Automated or AI-assisted triage comments are only preliminary. They can run static checks and ask for missing details, but real ECNU WebVPN / SSO / database access behavior still needs maintainer verification in an actual browser environment.
-
-## 📄 License
+## License
 
 [Apache-2.0](./LICENSE)
 
 ---
 
-**If you find this useful, give it a Star ⭐!**
+**Found it useful? Leave a Star ⭐~**

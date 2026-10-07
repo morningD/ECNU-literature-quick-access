@@ -10,9 +10,14 @@ ZCODE_SKILLS="$HOME/.zcode/skills"
 CONF_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/get-paper"
 SOURCE_FILE="$CONF_DIR/source.json"
 CRED_FILE="$CONF_DIR/credentials.json"
-MODE="${1:-install}"
+MODE="install"
 NO_GUI="${NO_GUI:-0}"
-for _a in "$@"; do [ "$_a" = "--no-gui" ] && NO_GUI=1; done
+for _a in "$@"; do
+  case "$_a" in
+    --no-gui) NO_GUI=1 ;;   # 唯一的无值 flag
+    --*) MODE="$_a" ;;      # --check/--reset 等模式
+  esac
+done
 unset _a
 
 say()  { printf '\033[1;32m▸\033[0m %s\n' "$*"; }
@@ -143,7 +148,7 @@ configure_credentials() {
     printf '{"backend":"keychain","serviceUser":"%s","accountUser":"","servicePass":"%s","accountPass":""}\n' \
       "$svc_user" "$svc_pass" > "$SOURCE_FILE"
     chmod 600 "$SOURCE_FILE"
-    say "已记录来源：$svc_user / $svc_pass（首次读取会弹授权框，请点「总是允许」）"
+    say "已记录来源：$svc_user / ${svc_pass}（首次读取会弹授权框，请点「总是允许」）"
     return
   fi
 
@@ -170,12 +175,17 @@ configure_credentials() {
   user="$(ask "get-paper 配置" "学号/工号：")"
   pass="$(ask "get-paper 配置" "SSO 密码：" hidden)"
   mkdir -p "$CONF_DIR"
-  printf '{"username":"%s","password":"%s"}\n' "$user" "$pass" > "$CRED_FILE"
+  # JSON 转义反斜杠与双引号（printf %s 直写，特殊字符密码安全）
+  local esc_user esc_pass
+  esc_user=$(printf '%s' "$user" | sed 's/\\/\\\\/g; s/"/\\"/g')
+  esc_pass=$(printf '%s' "$pass" | sed 's/\\/\\\\/g; s/"/\\"/g')
+  printf '{"username":"%s","password":"%s"}\n' "$esc_user" "$esc_pass" > "$CRED_FILE"
+  unset esc_user esc_pass
   chmod 600 "$CRED_FILE"
   printf '{"backend":"file"}\n' > "$SOURCE_FILE"
   chmod 600 "$SOURCE_FILE"
   unset user pass
-  say "已写入 $CRED_FILE（600 权限）✓"
+  say "已写入 ${CRED_FILE}（600 权限）✓"
 }
 
 configure_api_keys() {
@@ -194,7 +204,7 @@ configure_api_keys() {
     mkdir -p "$keys_dir"
     printf '%s\n' "${keys[@]}" > "$keys_file"
     chmod 600 "$keys_file"
-    say "已保存 ${#keys[@]} 个 OpenAlex key → $keys_file（600 权限）✓"
+    say "已保存 ${#keys[@]} 个 OpenAlex key → ${keys_file}（600 权限）✓"
   fi
   # S2 key（单个）
   local s2k
@@ -203,7 +213,7 @@ configure_api_keys() {
     mkdir -p "$keys_dir"
     printf '%s\n' "$s2k" > "$s2_file"
     chmod 600 "$s2_file"
-    say "已保存 S2 key → $s2_file（600 权限）✓"
+    say "已保存 S2 key → ${s2_file}（600 权限）✓"
   fi
   unset k s2k keys
 }
@@ -237,7 +247,7 @@ case "$MODE" in
   --remove-credentials) remove_credentials ;;
   --reset) remove_credentials; configure_credentials; check_all ;;
   install)
-    say "[1/2] 安装 skill symlink"
+    say "[1/3] 安装 skill symlink"
     mkdir -p "$AGENTS_SKILLS" "$ZCODE_SKILLS"
     { [ -e "$AGENTS_SKILLS/get-paper" ] || [ -L "$AGENTS_SKILLS/get-paper" ]; } || ln -s "$SKILL_DIR" "$AGENTS_SKILLS/get-paper"
     [ -e "$ZCODE_SKILLS/get-paper" ] || ln -s ../../.agents/skills/get-paper "$ZCODE_SKILLS/get-paper" 2>/dev/null || warn "~/.zcode/skills 跳过（无 ZCode）"

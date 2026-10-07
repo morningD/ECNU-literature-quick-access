@@ -19,6 +19,9 @@ const candidates = process.argv[2]
       join(REPO_ROOT, 'ecnu-literature-quick-access-auto.user.js'),
     ];
 
+const IS_CLI = process.argv[1] && /\/update-mapping\.mjs$/.test(process.argv[1]);
+if (IS_CLI) main();
+async function main() {
 const source = candidates.find(f => existsSync(f));
 if (!source) {
   console.error(`未找到油猴脚本源（尝试过: ${candidates.join(', ')}）`);
@@ -56,3 +59,4 @@ const payload = {
 };
 writeFileSync(OUTPUT, JSON.stringify(payload, null, 2) + '\n');
 console.log(`✓ ${entries.size} 条（合并后共 ${Object.keys(merged).length} 条）→ ${OUTPUT}`);
+}

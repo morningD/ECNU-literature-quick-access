@@ -11,16 +11,20 @@
  *  用法: node scripts/renew-session.mjs [--browser|--curl] [--dry-run]
  */
 import { execFileSync } from 'node:child_process';
+import { homedir } from 'node:os';
 import { copyFileSync, existsSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const SKILL_DIR = join(dirname(fileURLToPath(import.meta.url)), '..');
 const { loadCredentials } = await import(pathToFileURL(join(SKILL_DIR, 'scripts/iab/sso-login.mjs')).href);
-const JAR = join(process.env.HOME, '.config/get-paper/cookies.txt');
+const JAR = join(process.env.XDG_CONFIG_HOME || join(homedir(), '.config'), 'get-paper/cookies.txt');
 const PROXY_HOME = 'https://dl-acm-org-443.proxy.ecnu.edu.cn/';
 
+const IS_CLI = process.argv[1] && /\/renew-session\.mjs$/.test(process.argv[1]);
 const log = (...a) => console.error(...a);
+if (IS_CLI) main();
+async function main() {
 const creds = loadCredentials();
 if (!creds) { console.error('no credentials (keychain/file). run setup.sh first'); process.exit(2); }
 log('credentials:', creds.source);
@@ -121,3 +125,4 @@ async function renewViaCurl() {
 
 if (mode === 'curl') await renewViaCurl();
 else await renewViaBrowser().catch(e => { console.error('FAILED:', e.message); process.exit(1); });
+}

@@ -2,11 +2,12 @@
 // 在 ZCode node_repl（browser-use 环境）中 import 使用：
 //   import { ensureSsoLogin } from '<skill>/scripts/iab/sso-login.mjs';
 //   await ensureSsoLogin(tab, { credentialsPath });
+import { homedir } from 'node:os';
 import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { execFileSync } from 'node:child_process';
 
-const DEFAULT_CRED_PATH = join(process.env.HOME, '.config/get-paper/credentials.json');
+const DEFAULT_CRED_PATH = join(process.env.XDG_CONFIG_HOME || join(homedir(), '.config'), 'get-paper/credentials.json');
 
 // setup.sh "使用已有条目" 选项会写 source.json 指定任意钥匙串条目对。
 function loadFromSourceConfig() {

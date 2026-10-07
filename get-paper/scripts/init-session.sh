@@ -4,7 +4,7 @@
 #   (a leading "Cookie:" prefix is tolerated; only _webvpn_key / ECNU are required)
 set -eu
 
-JAR="${COOKIE_JAR:-$HOME/.config/get-paper/cookies.txt}"
+JAR="${COOKIE_JAR:-${XDG_CONFIG_HOME:-$HOME/.config}/get-paper/cookies.txt}"
 [ $# -ge 1 ] && [ -n "$1" ] || { echo "usage: init-session.sh \"<cookie header>\"" >&2; exit 2; }
 
 HEADER="$*"
