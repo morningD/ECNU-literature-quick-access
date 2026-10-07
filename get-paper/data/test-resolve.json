@@ -1,0 +1,207 @@
+{
+  "description": "get-paper 解析器红绿灯测试集。type: green=必须正确解析；red=必须拒绝（null）或边界明确；yellow=允许解析不到（标题版本漂移等），但绝不允许返回错误标识。预期值全部来自权威 API 实测（2026-10-05），禁止凭记忆编写。",
+  "updatedAt": "2026-10-05",
+  "titleCases": [
+    {
+      "id": "acl-megaagent",
+      "type": "green",
+      "title": "MegaAgent: A large-scale autonomous LLM-based multi-agent system without predefined SOPs",
+      "expectAnyOf": {
+        "doi": [
+          "10.18653/v1/2025.findings-acl.259"
+        ]
+      }
+    },
+    {
+      "id": "emnlp-cryptotrade",
+      "type": "green",
+      "title": "CryptoTrade: A reflective LLM-based agent to guide zero-shot cryptocurrency trading",
+      "expectAnyOf": {
+        "doi": [
+          "10.18653/v1/2024.emnlp-main.63"
+        ]
+      }
+    },
+    {
+      "id": "arxiv-position",
+      "type": "green",
+      "title": "Position: The current ai conference model is unsustainable! diagnosing the crisis of centralized ai conference",
+      "expectAnyOf": {
+        "arxiv": [
+          "2508.04586"
+        ]
+      },
+      "note": "Crossref 单源错配到 1989 IEEE；正确答案 arXiv 2508.04586 已由 citeme 数据佐证"
+    },
+    {
+      "id": "arxiv-hugnlp",
+      "type": "green",
+      "title": "HugNLP: A unified and comprehensive library for natural language processing",
+      "expectAnyOf": {
+        "doi": [
+          "10.1145/3583780.3614742"
+        ],
+        "arxiv": [
+          "2302.14286"
+        ]
+      },
+      "note": "CIKM 2023 正式版与 arXiv 版为同一论文的两个合法标识"
+    },
+    {
+      "id": "arxiv-judgelrm",
+      "type": "green",
+      "title": "JudgeLRM: Large Reasoning Models as a Judge",
+      "expectAnyOf": {
+        "arxiv": [
+          "2504.00050"
+        ],
+        "doi": [
+          "10.48550/arxiv.2504.00050"
+        ]
+      },
+      "note": "真值以 OpenAlex 实测为准（2504.00050）——曾凭记忆写 2502.07562 导致误判解析器"
+    },
+    {
+      "id": "modelgo-known",
+      "type": "green",
+      "title": "ModelGo: A Practical Tool for Machine Learning License Analysis",
+      "expectAnyOf": {
+        "doi": [
+          "10.1145/3589334.3645520"
+        ]
+      }
+    },
+    {
+      "id": "exact-title-classic",
+      "type": "green",
+      "title": "Deep learning",
+      "expectAnyOf": {
+        "doi": [
+          "10.1038/nature14539"
+        ]
+      },
+      "note": "泛标题的精确匹配是正确行为（LeCun 综述就叫这个名），不是错配"
+    },
+    {
+      "id": "multifinben-title-drift",
+      "type": "yellow",
+      "title": "MultiFinBen: A Multilingual, Multimodal, and Difficulty-Aware Benchmark for Financial LLM",
+      "expectNull": true,
+      "note": "Scholar 挂的是旧版标题，正式版已改名（OpenAlex: 10.48448/9mqs-y118）——解析不到是正确行为，绝不能返回错误标识"
+    },
+    {
+      "id": "nonexistent-paper",
+      "type": "red",
+      "title": "Zqxvblorp: A Nonexistent Study of Frobnicated Widgets in Qux Domains",
+      "expectNull": true
+    },
+    {
+      "id": "near-miss-title",
+      "type": "red",
+      "title": "Attention Is All You Need Revisited Again: A Reproduction",
+      "expectNull": true,
+      "note": "与真实论文名相近但不存在——测试宁缺毋滥（可能返回真 Reproduction 类论文则按 yellow 观察）"
+    },
+    {
+      "id": "ieee-cisat-verified",
+      "type": "green",
+      "title": "Exploiting Input Space Translation and Contrastive Learning for Time-Series Anomaly Detection",
+      "expectAnyOf": {
+        "doi": [
+          "10.1109/CISAT66811.2025.11181995"
+        ]
+      },
+      "note": "真值来自 citeme 已验证数据"
+    },
+    {
+      "id": "vldb-pacmmat-verified",
+      "type": "green",
+      "title": "Federated and Balanced Clustering for High-dimensional Data",
+      "expectAnyOf": {
+        "doi": [
+          "10.14778/3749646.3749673"
+        ]
+      },
+      "note": "VLDB PACMMOD（10.14778 前缀，ACM DL 托管）"
+    },
+    {
+      "id": "wiley-oa-verified",
+      "type": "green",
+      "title": "Open sharing in Conservation AI: Benefits and Barriers",
+      "expectAnyOf": {
+        "doi": [
+          "10.1111/con4.70065"
+        ]
+      },
+      "note": "Wiley OA，get-paper 实战下载验证过"
+    },
+    {
+      "id": "ssrn-preprint",
+      "type": "yellow",
+      "title": "AI-Powered Reforms to End Academic Publishing Delays: A Data-Driven Path Forward",
+      "note": "SSRN 预印本——正式版 DOI 10.65655/qnaeev03（citeme 手册记载）；解析行为随源覆盖波动，允许空但不允许错",
+      "expectAnyOf": {
+        "doi": [
+          "10.2139/ssrn.5394931",
+          "10.65655/qnaeev03"
+        ]
+      }
+    },
+    {
+      "id": "aaai-label-skews-verified",
+      "type": "green",
+      "title": "Exploiting Label Skews in Federated Learning with Model Concatenation",
+      "expectAnyOf": {
+        "doi": [
+          "10.1609/aaai.v38i10.29063"
+        ]
+      },
+      "note": "AAAI OJS（终测 subagent 通过 oaPdf 直下验证）"
+    }
+  ],
+  "authorCases": [
+    {
+      "id": "author-nuo-chen",
+      "type": "green",
+      "name": "Nuo Chen",
+      "since": 2023,
+      "expectCount": [
+        2,
+        100
+      ],
+      "expectContainsTitle": "HugNLP",
+      "note": "Nuo Chen 重名极多，宽松下限（证明流程活着即可）"
+    },
+    {
+      "id": "author-moming-duan",
+      "type": "green",
+      "name": "Moming Duan",
+      "since": 2018,
+      "expectCount": [
+        5,
+        60
+      ],
+      "expectContainsTitle": "FedGroup"
+    },
+    {
+      "id": "author-nonexistent",
+      "type": "red",
+      "name": "Zqxv Blorpwick",
+      "expectCount": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "author-bingsheng-he",
+      "type": "green",
+      "name": "Bingsheng He",
+      "since": 2015,
+      "expectCount": [
+        10,
+        100
+      ],
+      "expectContainsTitle": "Serverless"
+    }
+  ]
+}

@@ -1,26 +1,129 @@
 # 🎓 ECNU 文献快速获取
 
-> 🚀 校外轻松访问学术数据库
+> 🚀 校外轻松访问学术数据库，AI 助手自动下载论文全文
 
 [English](./README_EN.md)
 
+本项目包含两个可独立使用的部分：
+
+| 组件 | 面向 | 一句话 |
+|------|------|--------|
+| 🐒 **油猴脚本** | 浏览器用户 | 访问学术网站自动跳转 ECNU 代理 + SSO 自动登录 |
+| 📄 **get-paper skill** | AI 助手用户（ZCode/Claude Code 等） | 说一句话，AI 自动下载论文 PDF（公开源 + 付费数据库） |
+
 ---
 
-## 😩 痛点
+## 一、油猴脚本（浏览器自动跳转）
 
-你是不是也经历过这样的场景：
+### 安装
 
-1. Google Scholar 搜到一篇论文，点进去发现要付费 💸
-2. 想起来学校买了数据库，于是打开图书馆主页找数据库入口……
-3. 在一堆数据库列表里翻啊翻，找到对应的 WebVPN 链接，点进去
-4. 跳到 SSO 登录页，输入学号密码
-5. 终于看到全文了……下次又得重来一遍 😭
+1. 安装 [Tampermonkey](https://www.tampermonkey.net/?browser=chrome)（Chrome/Edge 138+ 需在扩展详情页打开"允许用户脚本"）
+2. 安装本脚本：打开 [`ecnu-literature-quick-access.user.js`](./ecnu-literature-quick-access.user.js) → Raw → Tampermonkey 弹窗安装
+3. 点击 Tampermonkey 图标 → **ECNU 文献快速获取 - 设置**，填入学号密码（混淆存储在沙盒中）
 
-**人生苦短，何必每次都这么折腾？**
+之后正常浏览即可：访问 IEEE/ACM/ScienceDirect 等学术网站时自动跳转代理地址，首次自动登录 SSO。内置 100+ 数据库映射，找不到的可在图书馆数据库列表页一键更新。
 
-这个油猴脚本帮你搞定一切 ✨
+详细说明与常见问题见下方[油猴脚本详细文档](#油猴脚本详细文档)。
 
-## ✨ 功能一览
+---
+
+## 二、get-paper skill（AI 自动下载论文）
+
+给 AI 助手一句「下载这篇论文」，它自动完成：**解析 DOI（五源交叉验证）→ 公开副本优先（arXiv/ACL/仓库 OA）→ 付费库走 ECNU WebVPN 代理 → PDF 完整性验证**。
+
+### 已验证路线（全部实测）
+
+| 来源 | 路线 | 状态 |
+|------|------|------|
+| arXiv / OA 仓库 / ACL Anthology / AAAI / MDPI | 公开直下 | ✅ |
+| ACM Digital Library（含 VLDB/PACMMOD） | curl + WebVPN 会话 | ✅ |
+| IEEE Xplore（论文页 → stamp 预热 → getPDF 三步） | curl + WebVPN 会话 | ✅ |
+| Wiley（OA 文章，`pdfdirect` 端点） | 浏览器页面内提取 | ✅ |
+| ScienceDirect | ⚠️ 有 Cloudflare 挑战，见 [databases.md](./get-paper/references/databases.md) |
+
+批量实战记录：学者主页 10 篇下载 **10/10 成功**（公开 6 + ACM 2 + IEEE 2），全程零人工干预。
+
+### 安装（一次性，约 1 分钟）
+
+```bash
+git clone https://github.com/morningD/ECNU-literature-quick-access.git
+cd ECNU-literature-quick-access
+bash get-paper/setup.sh
+```
+
+`setup.sh` 会引导完成三步（全程 GUI 对话框，终端亦可）：
+
+1. **安装 skill**（symlink 到 `~/.agents/skills/`，ZCode/Claude Code 等 AI 助手自动发现）
+2. **配置 ECNU SSO 凭据**——三选一：复用钥匙串已有条目 / 新建专属条目 / 600 权限明文文件。macOS 存钥匙串、Linux 存 secret-tool，**磁盘不落明文**（选明文文件除外）
+3. **API key（可选，回车跳过）**——OpenAlex key 池与 Semantic Scholar key，显著提高批量场景的限流上限
+
+其他命令：`bash get-paper/setup.sh --check`（查看配置状态）、`--reset`（重配）、`--remove-credentials`（清除凭据）。Windows 见 [`get-paper/setup.ps1`](./get-paper/setup.ps1)（实验性）。
+
+### 使用示例
+
+**对话式**（对已安装 skill 的 AI 助手说）：
+
+```
+用 get-paper 下载这篇论文：10.1145/3589334.3645520
+把 https://scholar.google.com/citations?user=xxxx 这位学者近 5 年的论文都下载下来
+下载 "HugNLP: A unified and comprehensive library for natural language processing"
+```
+
+AI 会按 [SKILL.md](./get-paper/SKILL.md) 的流程执行并报告每篇的路线与结果。
+
+**命令式**（脚本单独使用）：
+
+```bash
+# 标题 → DOI（五源交叉验证，宁缺毋滥；解析不到时列出各源候选）
+node get-paper/scripts/resolve.mjs title "ModelGo: A Practical Tool for Machine Learning License Analysis"
+# → {"doi":"10.1145/3589334.3645520","confidence":"high",...}
+
+# DOI → 元数据 + OA 副本直链
+node get-paper/scripts/resolve.mjs doi "10.18653/v1/2025.findings-acl.259"
+
+# 学者 → 论文列表
+node get-paper/scripts/resolve.mjs author "Bingsheng He" --since 2015
+
+# 原始 URL → ECNU 代理 URL（90+ 数据库映射表优先，公式兜底）
+node get-paper/scripts/proxy-url.js "https://ieeexplore.ieee.org/document/9644782"
+
+# 下载 + 完整性验证（curl，自动带 WebVPN 会话）
+bash get-paper/scripts/fetch-paper.sh "https://arxiv.org/pdf/2508.04586" paper.pdf
+
+# WebVPN 会话过期后一键续命（无头浏览器自动登录，无需手动复制 cookie）
+node get-paper/scripts/renew-session.mjs
+```
+
+**批量摊派**（进阶）：skill 手册自足性经过 subagent 测试——可以直接把下载任务摊派给多个 AI subagent 并行执行，详见 [DEVLOG.md](./get-paper/DEVLOG.md) 的测试记录。
+
+### 隐私与安全
+
+- SSO 凭据只存本机（macOS 钥匙串 / Linux secret-tool / 600 权限文件），**不经过任何第三方服务器**（登录请求直达学校 SSO）
+- WebVPN 会话 cookie 存 `~/.config/get-paper/`（600 权限）
+- API key 同样本地存储；本仓库不含任何个人凭据
+- PDF 直接从出版商/代理下载，代理路径只有 `*.proxy.ecnu.edu.cn`（学校官方 WebVPN）
+
+### 测试与维护
+
+```bash
+bash get-paper/scripts/test-suite.sh        # 下载路线回归（arXiv/ACM/IEEE）
+node get-paper/scripts/test-resolve.mjs     # 解析器红绿灯（green/red/yellow 语义）
+node get-paper/scripts/update-mapping.mjs   # 油猴脚本映射表更新后同步
+```
+
+测试集位于 `get-paper/data/`（`test-dois.json` / `test-resolve.json`），预期值全部来自权威 API 实测。欢迎通过 PR 补充新出版商的验证 case。
+
+### 文档索引
+
+- [get-paper/SKILL.md](./get-paper/SKILL.md) — 完整使用手册（AI 助手的执行依据）
+- [get-paper/references/databases.md](./get-paper/references/databases.md) — 各数据库实测下载模式与踩坑
+- [get-paper/DEVLOG.md](./get-paper/DEVLOG.md) — 开发日志（限流地图、反爬教训、架构决策）
+
+---
+
+## 油猴脚本详细文档
+
+### 功能一览
 
 | 功能 | 描述 |
 |------|------|
@@ -31,212 +134,45 @@
 | 🌐 **双语界面** | 中文 / English 随心切换 |
 | 🛡️ **凭据安全** | 密码混淆存储在 Tampermonkey 沙盒中，不会明文泄露 |
 
-## 📦 安装教程
+### 安装教程
 
-整个安装分两步：先装油猴扩展，再装咱们的脚本。别慌，五分钟搞定 ☕
-
-### 第一步：安装 Tampermonkey（油猴）🐒
-
-Tampermonkey 是一个浏览器扩展，可以运行用户脚本。选择你的浏览器：
+**第一步：安装 Tampermonkey** 🐒
 
 | 浏览器 | 安装链接 |
 |--------|----------|
 | Chrome | [Chrome 应用商店](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo) |
 | Edge | [Edge 应用商店](https://microsoftedge.microsoft.com/addons/detail/tampermonkey/iikmkjmpaadaobahmlepeloendndfphd) |
-| Firefox | [Firefox 附加组件](https://addons.mozilla.org/en-US/firefox/addon/tampermonkey/) |
-| Safari | [Tampermonkey 官网](https://www.tampermonkey.net/?browser=safari) |
 
-> 💡 Chrome 用户如果打不开应用商店……你懂的，想办法科学上网，或者搜一下离线安装 crx 的方法
+> ⚠️ Chrome/Edge 138+ 必须在扩展管理页打开 **允许用户脚本（Allow User Scripts）**，否则脚本不运行。
 
-### ⚠️ Chrome / Edge 用户必看！
+**第二步：安装脚本** 📜
 
-Tampermonkey 5.3+ 在 Chrome 和 Edge 上需要额外开启一个开关，否则用户脚本不会运行（你装了等于没装 😅）：
+打开 [`ecnu-literature-quick-access.user.js`](./ecnu-literature-quick-access.user.js) → 点 **Raw** → Tampermonkey 弹窗安装。需要动态识别新子域的用户可选[自动版](./ecnu-literature-quick-access-auto.user.js)（两者不要同时装）。
 
-**方式一：Chrome / Edge 138+（推荐）**
+**第三步：配置 SSO 凭据** 🔑
 
-1. 右键点击浏览器右上角的 Tampermonkey 图标 → 选择 **管理扩展**
-2. 找到 **允许用户脚本**（Allow User Scripts）开关，打开即可
+打开[华东师范大学图书馆数据库列表](https://lib.ecnu.edu.cn/sjk/list.htm) → Tampermonkey 图标 → **ECNU 文献快速获取 - 设置** → 填入学号密码。
 
-**方式二：旧版 Chrome / Edge**
+### 支持哪些数据库
 
-1. 打开 `chrome://extensions`（Edge 则是 `edge://extensions`）
-2. 打开右上角的 **开发者模式**（Developer Mode）
-3. 确认启用 `userScripts` API
+内置 100+ 映射，覆盖：CNKI/万方/维普（中文）、Web of Science/Scopus/JCR（综合）、IEEE/ACM/ScienceDirect/SpringerLink/Nature（理工）、JSTOR/Taylor & Francis/Wiley/Cambridge/Oxford（社科）、ACS/RSC/SciFinder（化学）等。图书馆新增数据库可在列表页点"开始更新映射"自动同步。
 
-> 📖 详情参考 [Tampermonkey 官方说明](https://www.tampermonkey.net/faq.php#Q209)
+### 常见问题
 
-Firefox 用户不用操心这个 🎉
+**Q: 安装了但没生效？**
+A: 检查 Chrome/Edge 的"允许用户脚本"开关（最常见）。
 
-### 第二步：安装脚本 📜
+**Q: 某个学术网站没有自动跳转？**
+A: 更新映射表 → 换自动版 → 或在设置中手动添加该域名。
 
-我们提供两个版本，选一个安装就行（**不要同时装两个**）：
+**Q: Wiley 打不开？**
+A: 已知 Wiley 认证系统拒绝代理域名（详见 [PROXY_CHECK.md](./PROXY_CHECK.md)），需要学校图书馆更新配置。
 
-| 版本 | 文件 | 权限 | 特点 |
-|------|------|------|------|
-| 📌 **精简版**（推荐） | [`ecnu-literature-quick-access.user.js`](./ecnu-literature-quick-access.user.js) | 仅匹配已知数据库域名 | 权限最小，覆盖 95+ 主流数据库 |
-| 🔄 **自动版** | [`ecnu-literature-quick-access-auto.user.js`](./ecnu-literature-quick-access-auto.user.js) | 匹配所有网站 | 支持动态识别子域名，自动记忆新域名 |
+### 适配其他学校
 
-**安装方法一：从 GitHub 安装（推荐）**
+大部分高校 WebVPN 类似，参考 [PLAN.md](./PLAN.md) 让 AI 帮你生成适配版（主要改代理域名后缀、SSO 地址和表单选择器）。
 
-1. 点击上面表格中对应版本的文件链接
-2. 点击右上角的 **Raw** 按钮
-3. Tampermonkey 会自动弹出安装提示，点 **安装** 就完事了
-
-**安装方法二：手动安装**
-
-1. 复制对应版本 `.user.js` 文件的全部内容
-2. 点击浏览器里 Tampermonkey 图标 → **添加新脚本**
-3. 把自带的模板全删掉，粘贴进去，Ctrl+S 保存
-
-搞定！🎉
-
-## 🔧 配置教程
-
-装完脚本之后，先花 30 秒配置一下 SSO 账号，后面就全自动了。
-
-### 填写 SSO 凭据 🔑
-
-**首次使用时**，打开[华东师范大学图书馆数据库列表](https://lib.ecnu.edu.cn/sjk/list.htm)，点击 Tampermonkey 图标 🐒 → **ECNU 文献快速获取 - 设置**，即可打开设置面板。或者直接访问任意学术网站（比如 [IEEE](https://ieeexplore.ieee.org)），脚本检测到未配置凭据时也会自动弹出设置面板。
-
-在设置面板中输入你的：
-- **学号 / 工号** — 就是你登录 [公共数据库](https://portal1.ecnu.edu.cn/) 那个号
-- **密码** — 对，就是那个密码
-
-点 **保存**，刷新页面就会自动跳转了 🎉
-
-> 💡 之后想改设置？点击浏览器右上角的 **Tampermonkey 图标** 🐒 → 找到 **ECNU 文献快速获取 - 设置**
-
-> 🛡️ 密码经过混淆加密后存储在 Tampermonkey 的沙盒存储中，其他网站和扩展无法访问。不过还是建议不要在公共电脑上使用哦 🙃
-
-### 其他设置
-
-| 选项 | 说明 | 默认值 |
-|------|------|--------|
-| 🌐 语言 | 中文 / English | 中文 |
-| 🎯 匹配模式 | 静态匹配 / 动态匹配（仅自动版） | 动态匹配 |
-| 🔄 跳转模式 | 自动跳转 / 手动确认 | 自动跳转 |
-| 🔐 SSO 自动登录 | 启用 / 禁用 | 启用 |
-| 🗃️ 域名映射 | 查看 / 添加 / 删除 / 重置 | 内置 100+ |
-
-## 🚀 使用教程
-
-配置好之后，**不需要做任何事，正常浏览就行**。
-
-### 日常使用 🏄‍♂️
-
-1. 正常搜论文、点链接
-2. 当你访问到支持的学术网站时，脚本自动帮你跳转到代理地址
-3. 第一次会弹出 SSO 登录页 → 脚本自动帮你填好账号密码并登录
-4. 然后你就看到全文了 🎉
-
-就这么简单。**你甚至感觉不到脚本在工作** ——这才是最好的体验 😎
-
-### 支持哪些数据库？
-
-内置 100+ 数据库映射，覆盖主流学术资源：
-
-| 类别 | 数据库 |
-|------|--------|
-| 📚 中文 | CNKI 中国知网、万方数据、维普、CSMAR、CSSCI… |
-| 🌍 综合 | Web of Science、Scopus、JCR、ProQuest、EBSCO… |
-| 🔬 理工 | ScienceDirect、IEEE Xplore、SpringerLink、ACM、Nature… |
-| 📗 社科 | JSTOR、Taylor & Francis、Wiley、Cambridge、Oxford… |
-| 🧪 化学 | ACS、Reaxys、SciFinder… |
-| 📐 更多 | AIP、RSC、SIAM、AGU、EI Compendex… |
-
-> 找不到你要的数据库？往下看更新教程 👇
-
-### 精简版 vs 自动版 🎯
-
-| | 精简版（推荐） | 自动版 |
-|--|--------------|--------|
-| 权限 | 仅匹配已知数据库域名 | 匹配所有网站 |
-| 匹配方式 | 精确匹配映射表 | 精确 + 主域名模糊匹配 |
-| 动态识别 | ❌ | ✅ 自动识别子域名并记忆 |
-| 匹配模式设置 | 无（固定精确匹配） | 可切换静态/动态 |
-| 适合谁 | 大多数用户 | 经常遇到新子域名的用户 |
-
-> 💡 **不确定选哪个？装精简版就对了。** 95+ 主流数据库都已内置，遇到没覆盖的可以在设置中手动添加，或者切换到自动版。
-
-### 手动确认模式
-
-如果你不喜欢自动跳转（比如有时候就是想看原始页面），可以在设置中切换到 **手动确认** 模式。这样访问学术网站时，右下角会出现一个蓝色浮动按钮，点一下才跳转。
-
-## 🔄 更新教程
-
-### 更新数据库映射
-
-脚本内置了 100+ 个数据库映射，但图书馆可能会新增数据库。你可以这样更新：
-
-1. 打开 [华东师范大学图书馆数据库列表](https://lib.ecnu.edu.cn/sjk/list.htm)
-2. 页面右下角会出现绿色的 **"开始更新映射"** 按钮
-3. 点击它，脚本会自动扫描所有数据库详情页（大概要等几十秒）
-4. 完成后会显示映射总数，关掉就好 🎉
-
-你也可以在设置面板中手动添加单个域名映射。
-
-### 更新脚本版本 📦
-
-获取最新版脚本：
-
-- **GitHub**：访问本项目仓库，重新点 Raw 安装即可覆盖旧版本
-- **手动更新**：复制最新的 `.user.js` 内容，粘贴到 Tampermonkey 编辑器中覆盖保存
-
-> 💡 建议偶尔回来看看有没有新版本，可能修了 bug 或者加了新功能~
-
-## 🤔 常见问题
-
-**Q: 安装了但是脚本没生效？**
-
-A: Chrome / Edge 用户请检查是否开启了 **允许用户脚本**（Allow User Scripts），详见上方 [Chrome / Edge 用户必看](#️-chrome--edge-用户必看)。这是最常见的坑！
-
-**Q: 安全吗？密码会不会泄露？**
-
-A: 密码经过 XOR + Base64 混淆后存储在 Tampermonkey 的沙盒存储中，其他网站和扩展无法访问。当然，建议你不要在公共电脑上使用 🙃
-
-**Q: 为什么自动版要申请「匹配所有网站」的权限？**
-
-A: 自动版需要在你访问**任意学术网站**时判断是否需要跳转，所以需要全站权限。不匹配的域名只执行几行判断就退出了，零性能影响 🪶 如果介意权限范围，请使用**精简版**——它只匹配已知数据库域名。
-
-**Q: 为什么某个学术网站没有自动跳转？**
-
-A: 按以下步骤排查：
-
-1. **先试更新映射表** — 去[图书馆数据库列表页](https://lib.ecnu.edu.cn/sjk/list.htm)点击"开始更新映射"，可能这个数据库是新加的
-2. **换用自动版** — 如果你用的是精简版，可以切换到[自动版](./ecnu-literature-quick-access-auto.user.js)，它能自动识别同主域名的子域名并记忆
-3. **手动添加映射** — 在设置中手动添加这个域名和对应的代理域名
-
-**Q: 可以关闭自动跳转吗？**
-
-A: 当然可以！在设置中切换到 **手动确认** 模式，点按钮才跳转。
-
-**Q: 毕业了还能用吗？**
-
-A: 那得看学校什么时候注销你的账号了…… 珍惜在校时光，多下几篇论文吧 📝
-
-## 🏗️ 技术细节
-
-给好奇的同学：
-
-- **URL 转换**：域名中的 `.` → `-`，原有的 `-` → `--`，HTTPS 数据库加 `-443` 后缀
-- **零开销**：`@run-at document-start`，不匹配直接 return，不多执行一行代码
-- **SSO 兼容**：使用原生 `HTMLInputElement.prototype.value` setter 设值，兼容 Angular/React/Vue 表单
-- **映射更新**：利用同域 iframe 加载图书馆详情页提取代理链接，无跨域问题
-
-## 🎓 适配其他学校
-
-想给自己学校也做一个？大部分国内高校的 WebVPN 系统都类似，适配起来很简单。
-
-我们提供了完整的 [实现计划（PLAN.md）](./PLAN.md)，你可以直接把它喂给 [Claude Code](https://claude.com/claude-code) 或其他 AI 工具，让它帮你生成适配你学校的脚本。主要需要改的就是代理域名后缀、SSO 地址和表单选择器这几项，详见计划文档。
-
-## 反馈问题 🐛
-
-遇到打不开、跳错、SSO 不听话？欢迎提 Issue！为了少一点玄学、多一点定位，请优先选择对应模板：
-
-- **Bug report / 问题反馈**：重定向、安装、SSO、设置面板等问题
-- **Domain request / 数据库域名请求**：新增或修复数据库域名
-
-如果看到机器人或 AI 的初步排查回复，请把它当成“先帮你分拣快递”——它可以做静态检查、提醒补信息，但真实 ECNU WebVPN / SSO / 数据库访问问题仍需要维护者结合实际环境确认。
+---
 
 ## 📄 License
 

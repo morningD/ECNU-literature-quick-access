@@ -1,0 +1,83 @@
+{
+  "description": "get-paper 回归测试集：全部为实测通过的 DOI，改动 skill 后跑 scripts/test-suite.sh 验证路线未退化",
+  "updatedAt": "2026-10-05",
+  "cases": [
+    {
+      "id": "arxiv-position",
+      "title": "Position: The Current AI Conference Model is Unsustainable!",
+      "doi": "10.48550/arXiv.2508.04586",
+      "route": "curl-open",
+      "url": "https://arxiv.org/pdf/2508.04586",
+      "expectBytes": [
+        1000000,
+        4000000
+      ]
+    },
+    {
+      "id": "acm-permissive-washing",
+      "title": "Permissive-Washing in the Open AI Supply Chain",
+      "doi": "10.1145/3770855.3818130",
+      "route": "curl-acm",
+      "url": "https://dl-acm-org-443.proxy.ecnu.edu.cn/doi/pdf/10.1145/3770855.3818130?download=true",
+      "referer": "https://dl-acm-org-443.proxy.ecnu.edu.cn/doi/10.1145/3770855.3818130",
+      "expectBytes": [
+        1000000,
+        3000000
+      ]
+    },
+    {
+      "id": "ieee-fedgroup",
+      "title": "FedGroup: Efficient Federated Learning via Decomposed Similarity-based Clustering",
+      "doi": "10.1109/ispa-bdcloud-socialcom-sustaincom52081.2021.00042",
+      "arnumber": "9644782",
+      "route": "curl-ieee",
+      "expectBytes": [
+        1000000,
+        3000000
+      ]
+    },
+    {
+      "id": "acm-modelgo",
+      "title": "ModelGo: A Practical Tool for Machine Learning License Analysis",
+      "doi": "10.1145/3589334.3645520",
+      "route": "iab-acm",
+      "pdfPath": "/doi/pdf/10.1145/3589334.3645520?download=true",
+      "pageUrl": "https://dl-acm-org-443.proxy.ecnu.edu.cn/doi/10.1145/3589334.3645520",
+      "expectBytes": [
+        1000000,
+        3000000
+      ]
+    },
+    {
+      "id": "wiley-consai",
+      "title": "Open sharing in Conservation AI: Benefits and Barriers",
+      "doi": "10.1111/con4.70065",
+      "route": "iab-wiley-oa",
+      "pdfPath": "/doi/pdfdirect/10.1111/con4.70065",
+      "pageUrl": "https://conbio.onlinelibrary.wiley.com/doi/10.1111/con4.70065",
+      "expectBytes": [
+        300000,
+        1500000
+      ]
+    },
+    {
+      "id": "sd-zeromsa",
+      "title": "ZeroMSA: Zero-cost proxy-based evolutionary pruning",
+      "doi": "10.1016/j.sysarc.2026.103932",
+      "route": "known-blocked",
+      "note": "ScienceDirect Cloudflare 挑战，curl/IAB 均受阻；等冷却或人工。不参与回归，仅记录"
+    },
+    {
+      "id": "acm-pvldb-llmpbe",
+      "title": "LLM-PBE: Assessing Data Privacy in Large Language Models",
+      "doi": "10.14778/3681954.3681994",
+      "route": "curl-acm",
+      "url": "https://dl-acm-org-443.proxy.ecnu.edu.cn/doi/pdf/10.14778/3681954.3681994?download=true",
+      "referer": "https://dl-acm-org-443.proxy.ecnu.edu.cn/doi/10.14778/3681954.3681994",
+      "expectBytes": [
+        500000,
+        3000000
+      ]
+    }
+  ]
+}
