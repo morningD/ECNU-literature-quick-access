@@ -63,6 +63,8 @@ Then just browse normally: visiting IEEE/ACM/ScienceDirect etc. auto-redirects t
 
 A paper-download skill for AI assistants. Tell your assistant "download this paper" and it automatically: **resolves the DOI (5-source cross-validation) → prefers open-access copies (arXiv/ACL/AAAI/repositories) → falls back to paywalled databases via the ECNU WebVPN proxy → verifies PDF integrity**.
 
+Four input forms are supported: **paper title** / **DOI** / **arXiv ID or URL** / **a scholar's Google Scholar link** (fetches the list and batch-downloads).
+
 ### Verified routes (all tested)
 
 | Source | Route | Status |
