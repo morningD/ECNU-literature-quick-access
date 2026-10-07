@@ -6,13 +6,15 @@
  *  环境变量: PLAYWRIGHT_MODULE 指定 playwright 路径（默认 NODE_PATH 查找）
  */
 import { homedir } from 'node:os';
+import { createRequire } from 'node:module';
 import { readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const SKILL_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const JAR = join(process.env.XDG_CONFIG_HOME || join(homedir(), '.config'), 'get-paper/cookies.txt');
-const IS_CLI = process.argv[1] && /\/headless-download\.mjs$/.test(process.argv[1]);
+// 兼容 Windows 反斜杠与 POSIX 正斜杠两种 argv[1] 路径
+const IS_CLI = process.argv[1] && /[\\/]headless-download\.mjs$/i.test(process.argv[1]);
 const [pageUrl, linkPattern, outPath] = process.argv.slice(2);
 if (IS_CLI && (!pageUrl || !linkPattern || !outPath)) {
   console.log('usage: headless-download.mjs <page-url> <link-substr> <out.pdf>');
@@ -20,7 +22,10 @@ if (IS_CLI && (!pageUrl || !linkPattern || !outPath)) {
 }
 
 if (IS_CLI) {
-const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
+// Windows 反斜杠路径无法被 ESM import 解析，PLAYWRIGHT_MODULE 统一走 CJS require
+const { chromium } = process.env.PLAYWRIGHT_MODULE
+  ? createRequire(import.meta.url)(process.env.PLAYWRIGHT_MODULE)
+  : await import('playwright');
 
   // Netscape jar → playwright cookies
   const jarCookies = [];

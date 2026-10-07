@@ -86,6 +86,8 @@ bash get-paper/setup.sh
 > ⚠️ **clone 的目录就是安装目录**：skill 以 symlink 指向此处，请勿删除或移动（移动后重跑 setup.sh 即可）。
 > 依赖：node ≥ 18、curl、pdftotext（验证 PDF 用）；会话续命另需 playwright（详见 [FAQ](./get-paper/FAQ.md)）。
 
+Windows 改用：`powershell -ExecutionPolicy Bypass -File get-paper\setup.ps1`（凭据 DPAPI 加密保存，skill 以目录联接登记）
+
 setup 引导三步（GUI 对话框或终端）：**① 安装 skill**（symlink，AI 助手自动发现）→ **② 配 ECNU SSO 凭据**（钥匙串/secret-tool/600 权限文件三选一）→ **③ API key（可选）**。
 
 ```bash

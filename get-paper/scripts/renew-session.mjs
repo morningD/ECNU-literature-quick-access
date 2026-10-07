@@ -12,6 +12,7 @@
  */
 import { execFileSync } from 'node:child_process';
 import { homedir } from 'node:os';
+import { createRequire } from 'node:module';
 import { copyFileSync, existsSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -21,12 +22,13 @@ const { loadCredentials } = await import(pathToFileURL(join(SKILL_DIR, 'scripts/
 const JAR = join(process.env.XDG_CONFIG_HOME || join(homedir(), '.config'), 'get-paper/cookies.txt');
 const PROXY_HOME = 'https://dl-acm-org-443.proxy.ecnu.edu.cn/';
 
-const IS_CLI = process.argv[1] && /\/renew-session\.mjs$/.test(process.argv[1]);
+// 兼容 Windows 反斜杠与 POSIX 正斜杠两种 argv[1] 路径
+const IS_CLI = process.argv[1] && /[\\/]renew-session\.mjs$/i.test(process.argv[1]);
 const log = (...a) => console.error(...a);
 if (IS_CLI) main();
 async function main() {
 const creds = loadCredentials();
-if (!creds) { console.error('no credentials (keychain/file). run setup.sh first'); process.exit(2); }
+if (!creds) { console.error('no credentials (keychain/DPAPI/file). run setup.sh or setup.ps1 first'); process.exit(2); }
 log('credentials:', creds.source);
 
 const mode = process.argv.includes('--curl') ? 'curl' : 'browser';
@@ -51,7 +53,10 @@ function writeJar(cookies) {
 async function renewViaBrowser() {
   let chromium;
   try {
-    const mod = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
+    // Windows 反斜杠路径无法被 ESM import 解析，PLAYWRIGHT_MODULE 统一走 CJS require（支持目录与包入口）
+    const mod = process.env.PLAYWRIGHT_MODULE
+      ? createRequire(import.meta.url)(process.env.PLAYWRIGHT_MODULE)
+      : await import('playwright');
     chromium = mod.chromium;
   } catch {
     console.error([
@@ -61,7 +66,13 @@ async function renewViaBrowser() {
     ].join('\n'));
     process.exit(2);
   }
-  const browser = await chromium.launch({ headless: true });
+  // 默认用 playwright 缓存的 Chromium；未下载时（如 Windows 全新安装）回退系统 Edge
+  let browser;
+  try {
+    browser = await chromium.launch({ headless: true });
+  } catch {
+    browser = await chromium.launch({ headless: true, channel: 'msedge' });
+  }
   try {
     const ctx = await browser.newContext();
     const page = await ctx.newPage();
