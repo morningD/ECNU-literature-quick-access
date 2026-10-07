@@ -301,7 +301,8 @@ export async function topCandidates(title) {
 }
 
 // ---- CLI（仅直接运行时执行；被 import 时不触发） ----
-const IS_CLI = process.argv[1] && /\/resolve.mjs$/.test(process.argv[1]);
+// 兼容 Windows 反斜杠与 POSIX 正斜杠两种 argv[1] 路径；i 覆盖 Windows 大小写不敏感
+const IS_CLI = process.argv[1] && /[\\/]resolve\.mjs$/i.test(process.argv[1]);
 if (!IS_CLI) {
   // no-op: imported as module
 } else if (process.argv[2] === 'doi') {

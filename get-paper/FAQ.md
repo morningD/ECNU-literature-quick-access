@@ -31,7 +31,7 @@ A: OpenAlex 在 [openalex.org](https://openalex.org) 申请 premium key（免费
 A: AI 助手（如 ZCode）是 GUI 应用，它的 shell 不加载 `~/.zshrc`——环境变量在主力场景读不到。文件是更可靠的通道，所以统一走 `~/.config/get-paper/`。
 
 **Q: setup.ps1（Windows）能用吗？**
-A: 实验性。凭据写入后工具链的读取尚未完全接入（Windows Credential Manager 集成在 TODO），当前 Windows 下建议先用明文文件方式（手动把 `{"username":"...","password":"..."}` 放到 `~/.config/get-paper/credentials.json`，600 权限）。
+A: 可用。凭据以 DPAPI（按当前用户加密）保存到 `~/.config/get-paper/credentials.json.bin`，读取端 `sso-login.mjs` 调系统 PowerShell 解密，密码不落明文；skill 通过目录联接登记到 `~/.agents/skills` 与 `~/.zcode/skills`。运行 `powershell -ExecutionPolicy Bypass -File get-paper\setup.ps1`。
 
 ## 识别与凭据
 
@@ -101,5 +101,5 @@ A: Scholar 的 citations 主页是服务端渲染，curl 可直接抓（`a.gsc_a
 | Wiley 付费（非 OA）文章 | ❌ | Wiley 认证拒绝代理域名（上游问题），找 OA 副本或手动 |
 | IAB 单次 evaluate 的隔离上下文 | 已适配 | localStorage 中转方案（SKILL.md 方案 D） |
 | 大 PDF（>3.5MB）经 localStorage | ⚠️ | base64 膨胀可能超 5MB 配额，报 lsErr 时改用 headless-download |
-| Windows 全功能支持 | 🚧 | setup.ps1 实验性，凭据读取链待接 |
+| Windows 全功能支持 | ✅ | DPAPI 加密凭据 + PowerShell 解密读取；skill 以目录联接登记 |
 | DBLP 源在部分网络不可达 | 已适配 | 8s 快速超时后自动跳过，不影响其他源 |
