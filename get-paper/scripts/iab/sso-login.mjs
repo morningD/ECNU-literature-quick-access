@@ -7,12 +7,13 @@ import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { execFileSync } from 'node:child_process';
 
-const DEFAULT_CRED_PATH = join(process.env.XDG_CONFIG_HOME || join(homedir(), '.config'), 'get-paper/credentials.json');
+const CONF_DIR = join(process.env.XDG_CONFIG_HOME || join(homedir(), '.config'), 'get-paper');
+const DEFAULT_CRED_PATH = join(CONF_DIR, 'credentials.json');
 
 // setup.sh "使用已有条目" 选项会写 source.json 指定任意钥匙串条目对。
 function loadFromSourceConfig() {
   try {
-    const cfgPath = join(process.env.HOME, '.config/get-paper/source.json');
+    const cfgPath = join(CONF_DIR, 'source.json');
     if (!existsSync(cfgPath)) return null;
     const cfg = JSON.parse(readFileSync(cfgPath, 'utf8'));
     if (cfg.backend !== 'keychain' || !cfg.serviceUser) return null;
@@ -59,11 +60,34 @@ function loadFromKeychain() {
   return null;
 }
 
+// Windows：setup.ps1 以 DPAPI（按当前用户加密）保存的凭据
+// 解密走系统自带 Windows PowerShell，输出 Base64 避免控制台编码干扰
+function loadFromDpapi(credentialsPath) {
+  if (process.platform !== 'win32') return null;
+  const binPath = credentialsPath + '.bin';
+  if (!existsSync(binPath)) return null;
+  try {
+    const ps = [
+      'Add-Type -AssemblyName System.Security',
+      `$b = [IO.File]::ReadAllBytes('${binPath.replaceAll("'", "''")}')`,
+      '$d = [Security.Cryptography.ProtectedData]::Unprotect($b, $null, [Security.Cryptography.DataProtectionScope]::CurrentUser)',
+      '[Convert]::ToBase64String($d)',
+    ].join('; ');
+    const b64 = execFileSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', ps], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+    const c = JSON.parse(Buffer.from(b64, 'base64').toString('utf8'));
+    if (c.username && c.password) return { username: c.username, password: c.password, source: 'dpapi-file' };
+  } catch {}
+  return null;
+}
+
+// 优先级：source.json → 系统钥匙串（macOS/Linux）→ DPAPI 加密文件（Windows）→ 明文文件
 export function loadCredentials(credentialsPath = DEFAULT_CRED_PATH) {
   const fromSource = loadFromSourceConfig();
   if (fromSource) return fromSource;
   const fromKeychain = loadFromKeychain();
   if (fromKeychain) return fromKeychain;
+  const fromDpapi = loadFromDpapi(credentialsPath);
+  if (fromDpapi) return fromDpapi;
   if (existsSync(credentialsPath)) {
     try {
       const c = JSON.parse(readFileSync(credentialsPath, 'utf8'));
