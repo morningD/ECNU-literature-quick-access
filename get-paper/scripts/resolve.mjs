@@ -18,7 +18,7 @@ import { join as pjoin, join } from 'node:path';
 const CONF_DIR = pjoin(process.env.XDG_CONFIG_HOME || pjoin(homedir(), '.config'), 'get-paper');
 const gpConf = name => pjoin(CONF_DIR, name);
 
-const UA = 'get-paper/0.3 (https://github.com/ecnu-literature-quick-access)';
+const UA = 'get-paper/0.3 (https://github.com/morningD/ECNU-literature-quick-access)';
 const norm = s => (s || '').toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
 
 // Levenshtein-based similarity ratio (0..1)

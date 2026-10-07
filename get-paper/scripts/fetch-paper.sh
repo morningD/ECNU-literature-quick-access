@@ -9,7 +9,7 @@
 #   4 curl/network error | 5 corrupted PDF | 6 bad usage / missing tooling
 set -u
 
-JAR_DEFAULT="$HOME/.config/get-paper/cookies.txt"
+JAR_DEFAULT="${XDG_CONFIG_HOME:-$HOME/.config}/get-paper/cookies.txt"
 UA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 Edg/126.0.0.0"
 
 URL=""; OUT=""; REFERER=""; PAGE_ONLY=0; NO_VERIFY=0; JAR="$JAR_DEFAULT"

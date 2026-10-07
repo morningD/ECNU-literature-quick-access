@@ -48,7 +48,7 @@ Step 4  报告：每篇 成功(路径+大小) / 失败(原因+建议)
   五源管线（DBLP/S2/OpenAlex/Crossref/arXiv 网页搜索）+ 交叉验证 + 宁缺毋滥：`confidence: high`（≥2 源一致）可直接用；`medium`（严格单源）建议向用户亮出标题确认；`null` 列出候选让用户选。**Crossref 单源裸查会错配（sim 0.3~0.5 的弱相似条目），禁止绕过管线。**
 - 学者 → 论文列表：`node "$SKILL_DIR/scripts/resolve.mjs" author "<姓名>" --since 2021`（OpenAlex 消歧 + S2 兜底）；Google Scholar 链接场景用 IAB 打开抓 `a.gsc_a_at`（resolve 不管 Scholar 页面）。重名严重时（返回篇数异常少）按机构人工确认档案。
 
-输出文件名约定：默认 `{doi-slug}.pdf`，doi-slug = DOI 小写后把非 `[a-z0-9-]` 字符替换为 `-`（与 KB 仓库 citeme 惯例一致）。输出目录由用户指定，未指定时用 `./papers/`。
+输出文件名约定：默认 `{doi-slug}.pdf`，doi-slug = DOI 小写后把非 `[a-z0-9-]` 字符替换为 `-`（小写、非 [a-z0-9-] 字符替换为 -）。输出目录由用户指定，未指定时用 `./papers/`。
 
 ## Step 1 — 公开渠道（优先，无需任何登录）
 
@@ -86,7 +86,13 @@ node "$SKILL_DIR/scripts/resolve.mjs" doi "<DOI>"
 
 ### 2.2 确保 WebVPN session
 
-先直接尝试下载（2.3）。`fetch-paper.sh` 检测到登录页/会话失效时会以**退出码 3** 报 `SESSION_EXPIRED`，此时才需要刷新 cookie（见「WebVPN cookie 获取与刷新」），刷新后重试一次。**不要在 session 正常时主动去开浏览器。**
+先直接尝试下载（2.3）。`fetch-paper.sh` 检测到登录页/会话失效时会以**退出码 3** 报 `SESSION_EXPIRED`，此时执行一条命令自动续命（无头浏览器用钥匙串凭据自动登录，无需任何手动操作）：
+
+```bash
+node "$SKILL_DIR/scripts/renew-session.mjs"
+```
+
+成功后重试下载一次即可。**不要在 session 正常时主动续命；也不要走浏览器手动复制 cookie 的重路径**（那只是 renew-session 不可用时的备选，见「WebVPN cookie 获取与刷新」）。
 
 ### 2.3 构造数据库 PDF URL 并下载
 
@@ -114,7 +120,9 @@ PDF_URL=$(node "$SKILL_DIR/scripts/proxy-url.js" "https://<该库PDF端点>")
 
 ## WebVPN cookie 获取与刷新
 
-cookie jar：`~/.config/get-paper/cookies.txt`。核心是 `.proxy.ecnu.edu.cn` 域下的 `_webvpn_key`（HttpOnly）与 `ECNU`。按环境选择（A 最优先）：
+cookie jar：`~/.config/get-paper/cookies.txt`（`XDG_CONFIG_HOME` 可重定位）。核心是 `.proxy.ecnu.edu.cn` 域下的 `_webvpn_key`（HttpOnly）与 `ECNU`。
+
+**主路径（绝大多数场景）**：`node "$SKILL_DIR/scripts/renew-session.mjs"`——无头 Chromium 自动登录并导出 cookie，一条命令完成。以下 A-D 是它不可用（如缺 playwright）时的浏览器备选，按环境选：
 
 **A. Playwright MCP + Edge 扩展（首选，全自动）**。前提三项：
 1. Edge 已安装 Playwright 扩展并处于 Connected 状态（用户日常浏览器，带全部登录态）；

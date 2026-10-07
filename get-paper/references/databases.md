@@ -74,7 +74,7 @@
 
 ## proxy 兼容性速查（正常工作的主要库）
 
-IEEE、ACM、ScienceDirect、Springer、CNKI、万方、Web of Science、Scopus、JSTOR（需 -443）、Taylor & Francis、ACS、RSC、Annual Reviews、Cambridge、Optica、SPIE（有 hCaptcha）、Emerald（Cloudflare）等完整清单见 `ecnu-literature-quick-access/PROXY_CHECK.md`（如该仓库在本地）。
+IEEE、ACM、ScienceDirect、Springer、CNKI、万方、Web of Science、Scopus、JSTOR（需 -443）、Taylor & Francis、ACS、RSC、Annual Reviews、Cambridge、Optica、SPIE（有 hCaptcha）、Emerald（Cloudflare）完整清单见本仓库根目录的 `PROXY_CHECK.md`（skill 目录的上级）。
 
 ## 验证注意
 

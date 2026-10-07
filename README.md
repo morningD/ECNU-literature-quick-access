@@ -41,7 +41,7 @@
 
 | 功能 | 说明 |
 |------|------|
-| 🔄 自动跳转 | 100+ 数据库映射（CNKI/万方/WoS/Scopus/IEEE/ACM/ScienceDirect/Springer/Nature/ACS/RSC…），图书馆新增可在列表页一键更新 |
+| 🔄 自动跳转 | 90+ 数据库映射（CNKI/万方/WoS/Scopus/IEEE/ACM/ScienceDirect/Springer/Nature/ACS/RSC…），图书馆新增可在列表页一键更新 |
 | 🔐 SSO 自动登录 | 自动填写学号密码（原生 setter 兼容 Angular 表单） |
 | 🖱️ 手动模式 | 可切换为浮动按钮确认后跳转 |
 | 🌐 双语界面 | 中文 / English |
@@ -82,6 +82,9 @@ git clone https://github.com/morningD/ECNU-literature-quick-access.git
 cd ECNU-literature-quick-access
 bash get-paper/setup.sh
 ```
+
+> ⚠️ **clone 的目录就是安装目录**：skill 以 symlink 指向此处，请勿删除或移动（移动后重跑 setup.sh 即可）。
+> 依赖：node ≥ 18、curl、pdftotext（验证 PDF 用）；会话续命另需 playwright（详见 [FAQ](./get-paper/FAQ.md)）。
 
 setup 引导三步（GUI 对话框或终端）：**① 安装 skill**（symlink，AI 助手自动发现）→ **② 配 ECNU SSO 凭据**（钥匙串/secret-tool/600 权限文件三选一）→ **③ API key（可选）**。
 

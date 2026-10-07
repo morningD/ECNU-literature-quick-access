@@ -1,0 +1,117 @@
+name: Maintenance check / 维护检查
+description: Request a static audit, consistency check, or maintenance task / 请求静态审计、一致性检查或维护任务
+title: "[Maintenance]: "
+labels: ["needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        这个模板适合“不一定已经出现线上问题，但希望先做一次代码层面检查”的场景。
+
+        Use this for static audits, consistency checks, release-readiness checks, or other maintenance tasks that do not require real ECNU WebVPN / SSO reproduction.
+
+  - type: dropdown
+    id: check_type
+    attributes:
+      label: Check type / 检查类型
+      options:
+        - Static consistency check / 静态一致性检查
+        - Mapping audit / 域名映射审计
+        - Documentation audit / 文档审计
+        - Release-readiness check / 发布前检查
+        - Other maintenance task / 其他维护任务
+    validations:
+      required: true
+
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Scope / 检查范围
+      options:
+        - Lite and Auto scripts / lite 与 auto 两个脚本
+        - Lite script only / 仅 lite 版
+        - Auto script only / 仅 auto 版
+        - README or docs / README 或文档
+        - Other / 其他
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem_description
+    attributes:
+      label: Problem description / 问题描述
+      description: Describe what should be checked and why. / 说明希望检查什么、为什么要检查。
+      placeholder: |
+        I want to verify whether the lite version and auto version keep the same support range for domains that should be shared.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected_behavior
+    attributes:
+      label: Expected behavior / 期望行为
+      description: Describe the expected consistency or maintenance outcome. / 说明期望的结果或一致性要求。
+      placeholder: |
+        If a domain is intentionally supported in both variants, the mappings should stay aligned or be clearly documented.
+    validations:
+      required: true
+
+  - type: textarea
+    id: current_status
+    attributes:
+      label: Current status / 当前情况
+      description: Explain what is known so far. / 说明目前已经确认到什么程度。
+      placeholder: |
+        No specific mismatch confirmed yet. This is a request for a static repository check.
+    validations:
+      required: true
+
+  - type: textarea
+    id: files_or_rules
+    attributes:
+      label: Relevant files or rules / 相关文件或规则
+      description: Optional, but useful. / 可选，但很有帮助。
+      placeholder: |
+        - ecnu-literature-quick-access.user.js
+        - ecnu-literature-quick-access-auto.user.js
+        - @match entries
+        - DEFAULT_MAPPING
+    validations:
+      required: false
+
+  - type: input
+    id: script_version
+    attributes:
+      label: Userscript version if relevant / 用户脚本版本（如相关）
+      placeholder: "Current repository version / 当前仓库版本"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: real_environment_tested
+    attributes:
+      label: Tested in real ECNU WebVPN environment? / 是否在真实 ECNU WebVPN 环境测试？
+      options:
+        - No / 否
+        - Yes / 是
+        - Not applicable / 不适用
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional_notes
+    attributes:
+      label: Additional notes / 补充说明
+      description: Add any extra context. / 其他补充信息。
+      placeholder: |
+        This request only asks for a code-level check and does not require real WebVPN login verification.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Confirmation / 确认
+      options:
+        - label: I understand this kind of issue may only support static analysis first, and any real WebVPN/SSO conclusion still needs maintainer verification. / 我理解这类 issue 可能只能先做静态分析，真实 WebVPN/SSO 结论仍需要维护者确认。
+          required: true
