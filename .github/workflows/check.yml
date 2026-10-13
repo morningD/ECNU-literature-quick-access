@@ -26,3 +26,35 @@ jobs:
 
       - name: Check auto userscript syntax
         run: node --check ecnu-literature-quick-access-auto.user.js
+
+  skill:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Check skill mjs syntax
+        run: |
+          for f in get-paper/scripts/*.mjs get-paper/scripts/lib/*.mjs get-paper/scripts/iab/*.mjs; do
+            node --check "$f"
+          done
+
+      - name: Check setup.sh syntax
+        run: bash -n get-paper/setup.sh
+
+      - name: Check setup.ps1 syntax
+        shell: pwsh
+        run: |
+          $errs = $null
+          [void][System.Management.Automation.Language.Parser]::ParseFile(
+            "$PWD/get-paper/setup.ps1", [ref]$null, [ref]$errs)
+          if ($errs -and $errs.Count) { $errs | ForEach-Object { $_.Message }; exit 1 }
+
+      # 纯本地确定性（隔离 XDG + stub playwright），无网络；resolve 红绿灯依赖线上 API，不入 CI
+      - name: Playwright loader red/green tests
+        run: node get-paper/scripts/test-playwright.mjs

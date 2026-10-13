@@ -15,13 +15,15 @@ trigger: Use when the user asks to download / fetch / 获取 / 下载 a paper, P
 - IAB 模块（ZCode node_repl import）：`scripts/iab/sso-login.mjs`（钥匙串凭据 + SSO 自动登录 + `gotoWithLogin`）、`scripts/iab/fetch-pdf.mjs`（页面内 fetch 下载 `fetchPdfViaPage`）
 - 映射表：`data/proxy-mapping.json`（与油猴脚本同源，90+ 库）；上游更新后执行 `node $SKILL_DIR/scripts/update-mapping.mjs` 同步（保留手动新增条目）
 - 会话缓存：`~/.config/get-paper/cookies.txt`（Netscape cookie jar，含 WebVPN 登录态）
+- playwright 依赖：`node $SKILL_DIR/scripts/lib/ensure-playwright.mjs`（共享加载器——自动装到 `~/.config/get-paper/node_modules`，zcode/opencode 等多客户端共用一份；`PLAYWRIGHT_MODULE` 可显式覆盖，`--status` 查状态）
 - 配置工具：`bash $SKILL_DIR/setup.sh`（macOS/Linux，GUI 引导；`--check` 查状态）
 - 数据库细节：`references/databases.md` — **构造每个库的 PDF 下载 URL 前必读**
 - 元数据解析：`node $SKILL_DIR/scripts/resolve.mjs title|author ...`（五源管线，见 Step 0）
 - 无头下载（带挑战的库如 ScienceDirect）：`node $SKILL_DIR/scripts/iab/headless-download.mjs <论文页URL> <链接匹配串> <out.pdf>`（cookie jar 注入 + 真实点击 + download 事件，无弹窗）
-- session 续命：`node $SKILL_DIR/scripts/renew-session.mjs`（无头 Chromium 自动登录，凭据复用钥匙串；`PLAYWRIGHT_MODULE` 指定 playwright 路径）
+- session 续命：`node $SKILL_DIR/scripts/renew-session.mjs`（无头 Chromium 自动登录，凭据复用钥匙串）
 - 回归测试（下载路线）：`bash $SKILL_DIR/scripts/test-suite.sh`（curl 三路线；DOI 集在 `data/test-dois.json`）
 - 回归测试（解析器红绿灯）：`node $SKILL_DIR/scripts/test-resolve.mjs`（green 必须对 / red 必须拒 / yellow 允许空不许错；case 集在 `data/test-resolve.json`，**预期值必须来自权威 API 实测**，新库验证后补充）
+- 回归测试（playwright 加载红绿灯）：`node $SKILL_DIR/scripts/test-playwright.mjs`（`lib/ensure-playwright.mjs` 的解析顺序与边界——env 坏路径必须报错、env 优先于共享目录、缺源拒绝、`--status` 语义；子进程 + 隔离 XDG + stub playwright，纯本地确定性无网络，已入 CI）
 
 ## 流程总览（严格按顺序）
 
@@ -48,7 +50,7 @@ Step 4  报告：每篇 成功(路径+大小) / 失败(原因+建议)
   五源管线（DBLP/S2/OpenAlex/Crossref/arXiv 网页搜索）+ 交叉验证 + 宁缺毋滥：`confidence: high`（≥2 源一致）可直接用；`medium`（严格单源）建议向用户亮出标题确认；`null` 列出候选让用户选。**Crossref 单源裸查会错配（sim 0.3~0.5 的弱相似条目），禁止绕过管线。**
 - 学者 → 论文列表：`node "$SKILL_DIR/scripts/resolve.mjs" author "<姓名>" --since 2021`（OpenAlex 消歧 + S2 兜底）；Google Scholar 链接场景用 IAB 打开抓 `a.gsc_a_at`（resolve 不管 Scholar 页面）。重名严重时（返回篇数异常少）按机构人工确认档案。
 
-输出文件名约定：默认 `{doi-slug}.pdf`，doi-slug = DOI 小写后把非 `[a-z0-9-]` 字符替换为 `-`（小写、非 [a-z0-9-] 字符替换为 -）。输出目录由用户指定，未指定时用 `./papers/`。
+输出文件名约定：默认 `{doi-slug}.pdf`，doi-slug = DOI 小写后把非 `[a-z0-9-]` 字符替换为 `-`（小写、非 [a-z0-9-] 字符替换为 -）。输出目录由用户指定，未指定时用 `~/Downloads/`（Windows 为 `%USERPROFILE%\Downloads`），目录不存在则先创建——不要落到项目目录里。
 
 ## Step 1 — 公开渠道（优先，无需任何登录）
 
@@ -92,7 +94,7 @@ node "$SKILL_DIR/scripts/resolve.mjs" doi "<DOI>"
 node "$SKILL_DIR/scripts/renew-session.mjs"
 ```
 
-成功后重试下载一次即可。**不要在 session 正常时主动续命；也不要走浏览器手动复制 cookie 的重路径**（那只是 renew-session 不可用时的备选，见「WebVPN cookie 获取与刷新」）。
+它依赖 playwright，但**无需预先安装**：首次运行自动装到共享目录 `~/.config/get-paper/node_modules`（zcode/opencode 等多个 AI 客户端共用一份，只装一次），浏览器用 playwright 缓存的 Chromium、缺失时回退系统 Edge。成功后重试下载一次即可。**不要在 session 正常时主动续命；也不要走浏览器手动复制 cookie 的重路径**（那只是 renew-session 不可用时的备选，见「WebVPN cookie 获取与刷新」）。
 
 ### 2.3 构造数据库 PDF URL 并下载
 

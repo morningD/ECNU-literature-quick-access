@@ -51,7 +51,7 @@ A: WebVPN 会话过期。一条命令续命（无头浏览器自动登录，凭�
 ```bash
 node get-paper/scripts/renew-session.mjs
 ```
-需要 playwright：`npm i -g playwright && npx playwright install chromium`，或用 `PLAYWRIGHT_MODULE` 指向已有安装。
+它依赖 playwright，**无需预先安装**：首次运行自动装到共享目录 `~/.config/get-paper/node_modules`（zcode/opencode 等多个 AI 客户端共用一份，只装一次），浏览器缺失时回退系统 Edge。手动预装/查状态：`node get-paper/scripts/lib/ensure-playwright.mjs [--status]`；也可用 `PLAYWRIGHT_MODULE` 显式指定已有安装。
 
 **Q: IEEE 下载 418？**
 A: IEEE 的 `stamp/stampPDF` 端点要求三步缺一不可（详见 references/databases.md）：论文页（建 JSESSIONID）→ `stamp.jsp` 预热（种许可 cookie）→ `getPDF.jsp`（带 stamp.jsp 作 Referer）。418 响应体以 `MEMBER_PROFILE_...` 开头即是此症状。skill 的 IEEE 流程已内置三步，手动复刻时容易漏第二步。

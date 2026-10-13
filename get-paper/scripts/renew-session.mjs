@@ -3,7 +3,8 @@
  *
  *  默认模式（--browser，推荐）：无头 Chromium 完成 SSO 表单登录（表单由 JS 渲染、
  *    含 CAS _eventId token，纯 curl 无法复刻），context.cookies() 导出写入 jar。
- *    依赖 playwright（NODE_PATH/全局，或 PLAYWRIGHT_MODULE 指向其绝对路径）。
+ *    playwright 经 lib/ensure-playwright.mjs 解析：PLAYWRIGHT_MODULE → 共享目录
+ *    ~/.config/get-paper/node_modules（缺失时自动安装）→ NODE_PATH/全局。
  *
  *  --curl 模式：纯 HTTP 复刻 OAuth 链。注意：SSO 登录表单带 JS 渲染的 CAS token
  *    （_eventId 等），该模式目前无法成功登录，仅保留用于排查链路。
@@ -12,13 +13,13 @@
  */
 import { execFileSync } from 'node:child_process';
 import { homedir } from 'node:os';
-import { createRequire } from 'node:module';
-import { copyFileSync, existsSync, writeFileSync, mkdirSync } from 'node:fs';
+import { copyFileSync, existsSync, writeFileSync, mkdirSync, chmodSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const SKILL_DIR = join(dirname(fileURLToPath(import.meta.url)), '..');
 const { loadCredentials } = await import(pathToFileURL(join(SKILL_DIR, 'scripts/iab/sso-login.mjs')).href);
+const { loadPlaywright } = await import(pathToFileURL(join(SKILL_DIR, 'scripts/lib/ensure-playwright.mjs')).href);
 const JAR = join(process.env.XDG_CONFIG_HOME || join(homedir(), '.config'), 'get-paper/cookies.txt');
 const PROXY_HOME = 'https://dl-acm-org-443.proxy.ecnu.edu.cn/';
 
@@ -47,25 +48,15 @@ function writeJar(cookies) {
   mkdirSync(dirname(JAR), { recursive: true });
   if (existsSync(JAR)) copyFileSync(JAR, JAR + '.bak');
   writeFileSync(JAR, lines.join('\n') + '\n');
+  chmodSync(JAR, 0o600); // 含 WebVPN session，与 init-session.sh 一致拒绝同机其他账户读取
   return lines.length - 1;
 }
 
 async function renewViaBrowser() {
-  let chromium;
-  try {
-    // Windows 反斜杠路径无法被 ESM import 解析，PLAYWRIGHT_MODULE 统一走 CJS require（支持目录与包入口）
-    const mod = process.env.PLAYWRIGHT_MODULE
-      ? createRequire(import.meta.url)(process.env.PLAYWRIGHT_MODULE)
-      : await import('playwright');
-    chromium = mod.chromium;
-  } catch {
-    console.error([
-      '未找到 playwright。安装任一方式：',
-      '  npm i -g playwright && npx playwright install chromium',
-      '或指定已有安装: PLAYWRIGHT_MODULE=/path/to/node_modules/playwright node scripts/renew-session.mjs',
-    ].join('\n'));
+  const chromium = (await loadPlaywright({ log }).catch(e => {
+    console.error(`✗ ${e.message}`);
     process.exit(2);
-  }
+  })).chromium;
   // 默认用 playwright 缓存的 Chromium；未下载时（如 Windows 全新安装）回退系统 Edge
   let browser;
   try {

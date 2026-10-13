@@ -3,13 +3,13 @@
  *  注入 cookie jar（renew-session 续命过）→ 真实导航论文页 → 真实点击下载 →
  *  download 事件 saveAs（acceptDownloads 语义：无弹窗）。
  *  用法: node scripts/headless-download.mjs <论文页URL> <链接匹配串> <输出.pdf>
- *  环境变量: PLAYWRIGHT_MODULE 指定 playwright 路径（默认 NODE_PATH 查找）
+ *  环境变量: PLAYWRIGHT_MODULE 指定 playwright 路径（默认经 lib/ensure-playwright.mjs
+ *  解析共享目录 ~/.config/get-paper/node_modules，缺失时自动安装）
  */
 import { homedir } from 'node:os';
-import { createRequire } from 'node:module';
 import { readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const SKILL_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const JAR = join(process.env.XDG_CONFIG_HOME || join(homedir(), '.config'), 'get-paper/cookies.txt');
@@ -22,10 +22,9 @@ if (IS_CLI && (!pageUrl || !linkPattern || !outPath)) {
 }
 
 if (IS_CLI) {
-// Windows 反斜杠路径无法被 ESM import 解析，PLAYWRIGHT_MODULE 统一走 CJS require
-const { chromium } = process.env.PLAYWRIGHT_MODULE
-  ? createRequire(import.meta.url)(process.env.PLAYWRIGHT_MODULE)
-  : await import('playwright');
+const { loadPlaywright } = await import(pathToFileURL(join(SKILL_DIR, 'scripts/lib/ensure-playwright.mjs')).href);
+const { chromium } = await loadPlaywright({ log: (...a) => console.error(...a) })
+  .catch(e => { console.error(`✗ ${e.message}`); process.exit(2); });
 
   // Netscape jar → playwright cookies
   const jarCookies = [];

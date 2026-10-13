@@ -16,7 +16,8 @@ $CredBin = Join-Path $ConfDir "credentials.json.bin"
 $CredPlain = Join-Path $ConfDir "credentials.json"
 $SkillLinks = @(
   @{ Path = Join-Path $HOME ".agents\skills\get-paper"; Label = "~/.agents/skills/get-paper" },
-  @{ Path = Join-Path $HOME ".zcode\skills\get-paper";  Label = "~/.zcode/skills/get-paper" }
+  @{ Path = Join-Path $HOME ".zcode\skills\get-paper";  Label = "~/.zcode/skills/get-paper" },
+  @{ Path = Join-Path $HOME ".config\opencode\skills\get-paper"; Label = "~/.config/opencode/skills/get-paper" }
 )
 
 function Say($msg)  { Write-Host "▸ $msg" -ForegroundColor Green }
@@ -52,6 +53,18 @@ function Install-SkillLink {
   }
 }
 
+# playwright 装到共享目录 $ConfDir\node_modules（zcode/opencode 多客户端共用一份）。
+# 失败不中断 setup —— renew-session / headless-download 运行时会再自动尝试
+function Ensure-Playwright {
+  $mjs = Join-Path $SkillDir "scripts\lib\ensure-playwright.mjs"
+  & node $mjs 2>&1 | ForEach-Object { Write-Host "  $_" }
+  if ($LASTEXITCODE -eq 0) { Say "playwright: ✓" }
+  else {
+    Warn "playwright 自动安装失败（网络？）。跳过，首次续命时会再试"
+    Warn "手动: `$env:PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD='1'; npm install --prefix `"$ConfDir`" playwright --no-save"
+  }
+}
+
 function Remove-All {
   Remove-Item $CredBin, $CredPlain -ErrorAction SilentlyContinue
   Say "已清除凭据"
@@ -60,18 +73,22 @@ function Remove-All {
 function Check-All {
   Say "运行环境: Windows PowerShell $($PSVersionTable.PSVersion)"
   $linked = @($SkillLinks | Where-Object { Test-Path $_.Path }).Count
-  Say "skill 目录联接: $linked/$($SkillLinks.Count)（ZCode 只需 .zcode 一项）"
+  Say "skill 目录联接: $linked/$($SkillLinks.Count)（.agents 必装；.zcode / .opencode 按所用客户端）"
   Say "凭据: $(if (Test-Credentials) { '✓' } else { '未配置' })"
+  $pw = & node (Join-Path $SkillDir "scripts\lib\ensure-playwright.mjs") --status 2>$null
+  Say "playwright: $(if ($LASTEXITCODE -eq 0) { "$($pw[-1])" } else { '未安装（运行时自动装）' })"
 }
 
 if ($RemoveCredentials) { Remove-All; exit 0 }
 if ($Check) { Check-All; exit 0 }
 if ($Reset) { Remove-All; Install-SkillLink; Configure-Credentials; Check-All; exit 0 }
 
-Say "[1/2] 登记 skill（目录联接）"
+Say "[1/3] 登记 skill（目录联接）"
 Install-SkillLink
-Say "[2/2] 配置凭据"
+Say "[2/3] 配置凭据"
 if (Test-Credentials) { Say "凭据已配置（重置请加 -Reset）" } else { Configure-Credentials }
+Say "[3/3] playwright 依赖（会话续命/无头下载）"
+Ensure-Playwright
 Check-All
 Write-Host ""
 Say "完成！以后对 AI 助手说「用 get-paper 下载 <论文 DOI/标题>」即可。"

@@ -86,11 +86,11 @@ bash get-paper/setup.sh
 ```
 
 > ⚠️ **clone 的目录就是安装目录**：skill 以 symlink 指向此处，请勿删除或移动（移动后重跑 setup.sh 即可）。
-> 依赖：node ≥ 18、curl、pdftotext（验证 PDF 用）；会话续命另需 playwright（详见 [FAQ](./get-paper/FAQ.md)）。
+> 依赖：node ≥ 18、curl、pdftotext（验证 PDF 用）；会话续命另需 playwright（首次运行自动装到 `~/.config/get-paper/`，多客户端共享，详见 [FAQ](./get-paper/FAQ.md)）。
 
 Windows 改用：`powershell -ExecutionPolicy Bypass -File get-paper\setup.ps1`（凭据 DPAPI 加密保存，skill 以目录联接登记）
 
-setup 引导三步（GUI 对话框或终端）：**① 安装 skill**（symlink，AI 助手自动发现）→ **② 配 ECNU SSO 凭据**（钥匙串/secret-tool/600 权限文件三选一）→ **③ API key（可选）**。
+setup 引导四步（GUI 对话框或终端）：**① 安装 skill**（symlink 注册到 `~/.agents/skills`、`~/.zcode/skills`、`~/.config/opencode/skills`，覆盖 ZCode / opencode 等 AI 客户端，共用同一份代码与环境）→ **② 配 ECNU SSO 凭据**（钥匙串/secret-tool/600 权限文件三选一）→ **③ API key（可选）** → **④ playwright 依赖**（自动装到用户级共享目录，多客户端共用）。
 
 ```bash
 bash get-paper/setup.sh --check              # 查看配置状态
@@ -109,6 +109,8 @@ bash get-paper/setup.sh --remove-credentials # 清除凭据
 把 https://scholar.google.com/citations?user=xxxx 这位学者近 5 年的论文都下载下来
 下载 "HugNLP: A unified and comprehensive library for natural language processing"
 ```
+
+PDF 默认存到 `~/Downloads/`（对话中指定其他目录即可覆盖），每篇都经文件头与 pdftotext 完整性验证。
 
 **命令式**（脚本单独用）：
 
@@ -132,12 +134,13 @@ node get-paper/scripts/renew-session.mjs                                      # 
 ### 测试与维护
 
 ```bash
-bash get-paper/scripts/test-suite.sh      # 下载路线回归
-node get-paper/scripts/test-resolve.mjs   # 解析器红绿灯测试
-node get-paper/scripts/update-mapping.mjs # 油猴映射表更新后同步
+bash get-paper/scripts/test-suite.sh        # 下载路线回归
+node get-paper/scripts/test-resolve.mjs     # 解析器红绿灯测试
+node get-paper/scripts/test-playwright.mjs  # playwright 加载红绿灯测试（纯本地，无网络）
+node get-paper/scripts/update-mapping.mjs   # 油猴映射表更新后同步
 ```
 
-测试集在 `get-paper/data/`，预期值全部来自权威 API 实测，欢迎 PR 补充新出版商 case。
+测试集在 `get-paper/data/`，预期值全部来自权威 API 实测，欢迎 PR 补充新出版商 case。CI（`.github/workflows/check.yml`）自动跑 skill 脚本语法检查 + playwright 加载红绿灯测试——确定性、无网络的检查才入 CI；解析器与下载路线回归依赖线上 API/订阅凭据，请本地跑。
 
 ---
 

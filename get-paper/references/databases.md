@@ -26,9 +26,9 @@
 
 - 论文页：`https://www.sciencedirect.com/science/article/pii/{PII}`（PII 从 `doi.org` 解析的 location 拿：`linkinghub.elsevier.com/retrieve/pii/{PII}`）
 - PDF 端点 `pdfft` **不能直接用**：需要点击时 JS 生成的一次性签名参数（`md5=`、`crtasolve=1&token=`），token 绑定浏览器环境，curl 复用 403；页面内 fetch 也返回 SPA 壳
-- **自动下载路线：`scripts/iab/headless-download.mjs`**（无头 Chromium + cookie jar 注入 + 真实点击 + download 事件 saveAs，全程无弹窗）：
+- **自动下载路线：`scripts/iab/headless-download.mjs`**（无头 Chromium + cookie jar 注入 + 真实点击 + download 事件 saveAs，全程无弹窗；playwright 缺失时自动装到共享目录 `~/.config/get-paper/`）：
   ```bash
-  PLAYWRIGHT_MODULE=<playwright路径> node scripts/iab/headless-download.mjs \
+  node scripts/iab/headless-download.mjs \
     "https://www-sciencedirect-com-443.proxy.ecnu.edu.cn/science/article/pii/{PII}" pdfft out.pdf
   ```
 - **重要教训（2026-10-05）**：对 SD 连续探测（多次导航/fetch/curl）会触发 Cloudflare "Request Verification"，**再升级为 proxy 出口 IP 级封锁**（页面显示 "There was a problem providing the content you requested"），持续数小时至一天。被封锁后唯一正确动作：停止尝试，等冷却（次日重试 headless-download）

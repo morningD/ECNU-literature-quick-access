@@ -7,6 +7,7 @@ set -u
 SKILL_DIR="$(cd "$(dirname "$0")" && pwd)"
 AGENTS_SKILLS="$HOME/.agents/skills"
 ZCODE_SKILLS="$HOME/.zcode/skills"
+OPENCODE_SKILLS="$HOME/.config/opencode/skills"
 CONF_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/get-paper"
 SOURCE_FILE="$CONF_DIR/source.json"
 CRED_FILE="$CONF_DIR/credentials.json"
@@ -218,6 +219,15 @@ configure_api_keys() {
   unset k s2k keys
 }
 
+ensure_playwright() {
+  # 共享安装到 $CONF_DIR/node_modules（zcode/opencode 等多客户端共用一份）；
+  # 失败不中断 setup —— 运行 renew-session / headless-download 时会再自动尝试
+  if node "$SKILL_DIR/scripts/lib/ensure-playwright.mjs"; then :; else
+    warn "playwright 自动安装失败（网络？）。跳过，首次续命时会再试"
+    warn "手动: PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm install --prefix \"$CONF_DIR\" playwright --no-save"
+  fi
+}
+
 check_all() {
   local store="无"
   [ "$HAVE_SECURITY" = 1 ] && store="macOS Keychain"
@@ -225,12 +235,19 @@ check_all() {
   say "运行环境: $OS  GUI: ${GUI:-无(终端)}  安全存储: $store"
   [ -e "$AGENTS_SKILLS/get-paper" ] && say "~/.agents/skills/get-paper: ✓" || warn "~/.agents/skills/get-paper: 未安装"
   [ -e "$ZCODE_SKILLS/get-paper" ] && say "~/.zcode/skills/get-paper: ✓（ZCode）" || warn "~/.zcode/skills/get-paper: 未安装（仅 ZCode 用户需要）"
+  [ -e "$OPENCODE_SKILLS/get-paper" ] && say "~/.config/opencode/skills/get-paper: ✓（opencode）" || warn "~/.config/opencode/skills/get-paper: 未安装（仅 opencode 用户需要）"
   creds_configured && say "SSO 凭据: ✓" || warn "SSO 凭据: 未配置"
   [ -f "$SOURCE_FILE" ] && say "凭据来源配置: $(cat "$SOURCE_FILE")"
   [ -f "$CONF_DIR/openalex_keys.txt" ] \
     && say "OpenAlex key: $(grep -c '^[^#]' "$CONF_DIR/openalex_keys.txt" 2>/dev/null || true) 个 ✓" \
     || say "OpenAlex key: 未配置（用礼貌池，速率较低）"
   [ -f "$CONF_DIR/s2_api_key.txt" ] && say "S2 key: ✓" || say "S2 key: 未配置（限流 100 次/5 分钟）"
+  local pw
+  if pw="$(node "$SKILL_DIR/scripts/lib/ensure-playwright.mjs" --status 2>/dev/null)"; then
+    say "playwright: ${pw}"
+  else
+    warn "playwright: 未安装（下次 renew-session / headless-download 运行时自动装）"
+  fi
   return 0
 }
 
@@ -247,15 +264,18 @@ case "$MODE" in
   --remove-credentials) remove_credentials ;;
   --reset) remove_credentials; configure_credentials; check_all ;;
   install)
-    say "[1/3] 安装 skill symlink"
-    mkdir -p "$AGENTS_SKILLS" "$ZCODE_SKILLS"
+    say "[1/4] 安装 skill symlink"
+    mkdir -p "$AGENTS_SKILLS" "$ZCODE_SKILLS" "$OPENCODE_SKILLS"
     { [ -e "$AGENTS_SKILLS/get-paper" ] || [ -L "$AGENTS_SKILLS/get-paper" ]; } || ln -s "$SKILL_DIR" "$AGENTS_SKILLS/get-paper"
     [ -e "$ZCODE_SKILLS/get-paper" ] || ln -s ../../.agents/skills/get-paper "$ZCODE_SKILLS/get-paper" 2>/dev/null || warn "~/.zcode/skills 跳过（无 ZCode）"
-    say "[2/3] 配置凭据"
+    [ -e "$OPENCODE_SKILLS/get-paper" ] || ln -s "$SKILL_DIR" "$OPENCODE_SKILLS/get-paper" 2>/dev/null || warn "~/.config/opencode/skills 跳过（无 opencode）"
+    say "[2/4] 配置凭据"
     creds_configured && say "凭据已配置，跳过（更新请: bash setup.sh --reset）" || configure_credentials
-    say "[3/3] API key（可选）"
+    say "[3/4] API key（可选）"
     [ -f "$CONF_DIR/openalex_keys.txt" ] || [ -f "$CONF_DIR/s2_api_key.txt" ] \
       && say "API key 已配置，跳过" || configure_api_keys
+    say "[4/4] playwright 依赖（会话续命/无头下载）"
+    ensure_playwright
     check_all
     printf '\n%s\n' "完成！以后对 AI 助手说「用 get-paper 下载 <论文 DOI/标题>」即可。"
     ;;

@@ -86,9 +86,9 @@ bash get-paper/setup.sh
 ```
 
 > ⚠️ **The cloned directory IS the installation**: the skill is a symlink to this location — don't delete or move it (re-run setup.sh after moving).
-> Requirements: node ≥ 18, curl, pdftotext (PDF verification); session renewal also needs playwright (see the [FAQ](./get-paper/FAQ.md)).
+> Requirements: node ≥ 18, curl, pdftotext (PDF verification); session renewal also needs playwright (auto-installed to `~/.config/get-paper/` on first run, shared across AI clients — see the [FAQ](./get-paper/FAQ.md)).
 
-Setup walks you through 3 steps (GUI dialogs or terminal): **① install the skill** (symlink, auto-discovered by AI assistants) → **② configure ECNU SSO credentials** (Keychain / secret-tool / 600-perm file) → **③ API keys (optional)**.
+Setup walks you through 4 steps (GUI dialogs or terminal): **① install the skill** (symlinks registered in `~/.agents/skills`, `~/.zcode/skills` and `~/.config/opencode/skills` — covers ZCode / opencode and other AI clients sharing one copy of code and environment) → **② configure ECNU SSO credentials** (Keychain / secret-tool / 600-perm file) → **③ API keys (optional)** → **④ playwright** (auto-installed to a user-level shared dir, one copy for all AI clients).
 
 ```bash
 bash get-paper/setup.sh --check               # configuration status
@@ -107,6 +107,8 @@ Use get-paper to download this paper: 10.1145/3589334.3645520
 Download the last 5 years of papers from https://scholar.google.com/citations?user=xxxx
 Download "HugNLP: A unified and comprehensive library for natural language processing"
 ```
+
+PDFs land in `~/Downloads/` by default (override by naming a directory in the conversation); each file is validated by PDF header and pdftotext.
 
 **Command line** (scripts standalone):
 
@@ -130,12 +132,13 @@ node get-paper/scripts/renew-session.mjs                                        
 ### Tests & maintenance
 
 ```bash
-bash get-paper/scripts/test-suite.sh      # download-route regression
-node get-paper/scripts/test-resolve.mjs   # resolver red/green/yellow tests
-node get-paper/scripts/update-mapping.mjs # sync mapping from the userscript
+bash get-paper/scripts/test-suite.sh        # download-route regression
+node get-paper/scripts/test-resolve.mjs     # resolver red/green/yellow tests
+node get-paper/scripts/test-playwright.mjs  # playwright loader red/green tests (local only, no network)
+node get-paper/scripts/update-mapping.mjs   # sync mapping from the userscript
 ```
 
-Test suites live in `get-paper/data/`; all expectations are verified against authoritative APIs. PRs adding new publisher cases are welcome.
+Test suites live in `get-paper/data/`; all expectations are verified against authoritative APIs. PRs adding new publisher cases are welcome. CI (`.github/workflows/check.yml`) runs skill script syntax checks plus the playwright loader tests — deterministic, network-free checks only; the resolver and download-route regressions depend on live APIs / subscription credentials, run them locally.
 
 ---
 

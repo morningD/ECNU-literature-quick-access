@@ -336,3 +336,44 @@ get-paper 完成：五源解析（含 key 池）、三路线下载（curl/IAB/�
 新增：AAAI 绿灯（oaPdf 直下）、Bingsheng He 作者绿灯、PVLDB 下载 case（10.14778 走 ACM 代理）。Bingsheng He case 立刻抓出 **OpenAlex 过滤语法 bug**：`publication_year:>=2015` 不被支持（静默异常 → fallback 到残缺 S2 档案），正确写法是区间 `2015-2026`。修复后 维护者 悬了两轮的老黄灯转绿（26 篇）——"档案波动"误诊实为语法 bug。终态 16G/0R/3Y（Nuo Chen 黄为真·重名消歧边界）。
 
 扩充原则再确认：只加新维度（出版商/边界/失败模式），不加同质数量——每加一批新真值就抓出真 bug 的回报率是明证（今日三连：judgelrm 预期错、arxiv 字段 bug、过滤语法 bug）。
+
+---
+
+## 2026-10-13 v0.7：playwright 共享自举 + 默认下载目录改 ~/Downloads
+
+### 动机（真实踩坑）
+
+下载 TPDS 论文时 WebVPN session 过期，`renew-session.mjs` 报"未找到 playwright"——机器上根本没装，SKILL.md 的手动指引（`npm i -g playwright`）从没被执行过。v0.3 的 TODO「setup.sh 增加 playwright 依赖检测/安装提示」挂了两周，证明**依赖安装不能指望文档**，要自动。
+
+### playwright 共享自举：`scripts/lib/ensure-playwright.mjs`
+
+- **装到用户级共享目录** `~/.config/get-paper/node_modules`（与 cookie jar 同级），不装 skill 目录：zcode / opencode 等 AI 客户端无论软链还是复制安装，**共用一份、只装一次、只配置一次**
+- 解析顺序：`PLAYWRIGHT_MODULE`（显式指定失败即报错，不静默降级）→ 共享目录 → NODE_PATH/全局 → 自动 `npm install --prefix` 安装（`PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1` 跳过浏览器二进制，launch 失败回退系统 Edge——沿用 PR #5 约定；浏览器二进制若真要装也走 playwright 全局缓存 `~/.cache/ms-playwright`，不会重复）
+- CLI：`node ensure-playwright.mjs [--status]`，幂等，供 setup 与排障
+- `renew-session.mjs` / `iab/headless-download.mjs` 的加载块统一替换为 `loadPlaywright()`；`createRequire` 加载逻辑收拢进 lib（Windows 反斜杠兼容不变）
+- Windows 适配（PR #5 约定延续）：npm.cmd 走 `shell:true` + 引号清洗；argv 路径正则 `[\\/]` 锚定；CONF_DIR 统一 `XDG_CONFIG_HOME || ~/.config`
+
+### setup 引导升级
+
+- setup.sh：`[1/3..3/3]` → `[1/4..4/4]`，第 4 步 `ensure_playwright`（失败软降级不中断，运行时会再试）；`--check` 加 playwright 状态行
+- setup.ps1：`[1/2..2/2]` → `[1/3..3/3]`，第 3 步 `Ensure-Playwright`；`Check-All` 加状态行
+
+### 默认下载目录：`./papers/` → `~/Downloads/`
+
+论文是终端产物不是项目文件，落在当前项目目录里两次被抓到（项目目录里翻出 papers/）。约定改为：用户指定优先，未指定用 `~/Downloads/`（Windows `%USERPROFILE%\Downloads`），不存在则创建。
+
+### 文档同步
+
+SKILL.md（路径约定、2.2 续命、Step 0 输出目录）、databases.md（headless-download 示例去掉 PLAYWRIGHT_MODULE 前缀）、FAQ（SESSION_EXPIRED 条目改"无需预装"）、README/README_EN（依赖行 + setup 步骤数）。
+
+### v0.7 补：playwright 加载红绿灯测试 + skill 入 CI
+
+- 新增 `scripts/test-playwright.mjs`：`lib/ensure-playwright.mjs` 的 7 case 行为断言——env 坏路径必须报错（共享目录存在也不许静默降级）、env 优先于共享目录、共享目录命中、缺源（autoInstall:false）必须拒绝、`--status` 装与未装的退出码、本机真实环境冒烟。方法：子进程 + 隔离 `XDG_CONFIG_HOME` + stub playwright 包（`launch()` 返回固定标记串，断言标记防止意外命中环境里的真 playwright 造成假绿）。**纯本地确定性**——这是 skill 首个 CI 可跑的测试（resolve 红绿灯依赖线上 API、下载路线依赖订阅凭据，都只能本地跑）
+- CI（`check.yml`）新增 skill job：全部 mjs `node --check`、`bash -n setup.sh`、pwsh `Parser::ParseFile` 检查 setup.ps1 语法（本日改 ps1 却无本机 pwsh 验证的缺口就此补上）、test-playwright.mjs
+- 验证：7G/0R/0Y；临时目录清理干净；`node --check` 对含顶层 await 的 mjs 有效（按扩展名识别 ESM）
+
+### v0.7 补：opencode 注册（第三个客户端入口）
+
+- opencode（本机 v2.0.27）skill 目录为 `~/.config/opencode/skills/<name>/`，格式与 Agent Skills 规范一致——vmr skill 双端逐字节相同即证兼容（get-paper 的 `trigger:` 额外字段 opencode 忽略，`description` 足够触发）
+- 安装采用 symlink（先例：opencode 里的 claude-md-improver 即软链），指向仓库源目录，三端（.agents/.zcode/.opencode）同一份代码，环境（cookie jar / playwright / key）天然共享
+- setup.sh / setup.ps1 的注册与 --check 同步加入 opencode 路径；README/README_EN 安装说明更新
