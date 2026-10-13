@@ -31,7 +31,7 @@
           "2508.04586"
         ]
       },
-      "note": "Crossref 单源错配到 1989 IEEE；正确答案 arXiv 2508.04586 已由 私有文献库 数据佐证"
+      "note": "Crossref 单源错配到 1989 IEEE；正确答案 arXiv 2508.04586 已由私有文献库数据佐证"
     },
     {
       "id": "arxiv-hugnlp",
@@ -111,7 +111,7 @@
           "10.1109/CISAT66811.2025.11181995"
         ]
       },
-      "note": "真值来自 私有文献库 已验证数据"
+      "note": "真值来自私有文献库已验证数据"
     },
     {
       "id": "vldb-pacmmat-verified",
@@ -139,7 +139,7 @@
       "id": "ssrn-preprint",
       "type": "yellow",
       "title": "AI-Powered Reforms to End Academic Publishing Delays: A Data-Driven Path Forward",
-      "note": "SSRN 预印本——正式版 DOI 10.65655/qnaeev03（私有文献库 手册记载）；解析行为随源覆盖波动，允许空但不允许错",
+      "note": "SSRN 预印本——正式版 DOI 10.65655/qnaeev03（私有文献库手册记载）；解析行为随源覆盖波动，允许空但不允许错",
       "expectAnyOf": {
         "doi": [
           "10.2139/ssrn.5394931",
@@ -173,15 +173,15 @@
       "note": "Nuo Chen 重名极多，宽松下限（证明流程活着即可）"
     },
     {
-      "id": "author-maintainer",
+      "id": "author-jiawei-han",
       "type": "green",
-      "name": "维护者",
-      "since": 2018,
+      "name": "Jiawei Han",
+      "since": 2021,
       "expectCount": [
-        5,
-        60
+        50,
+        150
       ],
-      "expectContainsTitle": "FedGroup"
+      "expectContainsTitle": "Self-Improve"
     },
     {
       "id": "author-nonexistent",
