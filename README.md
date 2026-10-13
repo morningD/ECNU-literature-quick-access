@@ -155,7 +155,7 @@ node get-paper/scripts/update-mapping.mjs   # 油猴映射表更新后同步
 | [get-paper/SKILL.md](./get-paper/SKILL.md) | skill 完整手册（AI 助手的执行依据） |
 | [get-paper/FAQ.md](./get-paper/FAQ.md) | 常见问题排查（按症状组织） |
 | [get-paper/references/databases.md](./get-paper/references/databases.md) | 各数据库实测下载模式与踩坑 |
-| [get-paper/DEVLOG.md](./get-paper/DEVLOG.md) | 开发日志（限流地图、反爬教训、架构决策） |
+| [get-paper/DEVLOG.md](./get-paper/DEVLOG.md) | 开发日志（限流地图、反爬教训、架构决策；**公开记录，已脱敏**，写入规则见文件头） |
 | [PROXY_CHECK.md](./PROXY_CHECK.md) | 代理域名兼容性排查记录（油猴） |
 | [PLAN.md](./PLAN.md) | 适配其他学校的实现计划 |
 

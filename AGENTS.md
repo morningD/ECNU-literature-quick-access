@@ -65,6 +65,15 @@ When changing domain mappings:
 - All UI text must support zh/en via the existing i18n object.
 - Credentials must remain stored with `GM_setValue` plus Base64/XOR obfuscation.
 
+## Devlog hygiene (get-paper/DEVLOG.md)
+
+`get-paper/DEVLOG.md` is published with the repository. When appending entries:
+
+- Never include credential/cookie/token/key **values**, student/staff IDs, or intranet addresses.
+- Refer to the maintainer as 「维护者」, private projects by generic names (「私有文献库」 etc.).
+- Public scholars, publishers, DOIs, and other technical facts that match the `get-paper/data/` test suites are fine.
+- Full rules are pinned at the top of the file itself; re-read them before writing.
+
 ## GitHub issue triage rules
 
 When triaging issues:

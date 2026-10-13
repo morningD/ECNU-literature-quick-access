@@ -3,6 +3,11 @@
 论文 PDF 下载 skill（公开源 + ECNU WebVPN 电子数据库），从本仓库（ecnu-literature-quick-access）演进而来。
 全局入口：`~/.agents/skills/get-paper` → 本目录（symlink）。
 
+> **本文件随仓库公开。写入规则（新条目必须遵守）：**
+> - 禁止出现：凭据/cookie/token/key 的**值**、本人与私人项目专名、学号工号、内网地址
+> - 涉及本人→「维护者」；涉及私有项目→「私有文献库」等泛称；私人路径写 `~/.config/get-paper/` 级别的约定位置
+> - 允许：公开学者/出版商/DOI 等技术事实（与 `data/` 测试集对应）、限流与反爬教训、架构决策
+
 ---
 
 ## 2026-10-05 v0：首次端到端打通
@@ -216,10 +221,10 @@ playwright 依赖说明：`PLAYWRIGHT_MODULE` 环境变量或 NODE_PATH；setup.
 - ZeroMSA 实测：SD 已把 proxy 出口 IP 拉黑（"There was a problem providing the content"），非验证页非无头指纹。教训：Request Verification 若继续尝试会升级为 IP 封锁。挂起次日重试
 - 通用模式确立：**需要浏览器环境的下载一律可用无头 playwright**（renew-session 登录 + headless-download 下载），Bash 可直接跑，比 IAB/Edge 都干净
 
-### 私有文献库 数据源缺口补完（同日）
+### 私有文献库数据源缺口补完（同日）
 
 - Conservation AI 全管线闭环：PDF（get-paper IAB 路线）→ MinerU Markdown（280 行）→ codex 深度分析（gpt-6-luna）→ 总结 → 深度报告 → 索引。摘录审计 source_matched 30→31，零不匹配
-- 私有文献库 状态：38 篇 canonical，37 篇全处理，**唯一缺口 ZeroMSA**（SD 出口 IP 封锁，headless-download.mjs 已就绪，次日一条命令重试）
+- 私有文献库状态：38 篇 canonical，37 篇全处理，**唯一缺口 ZeroMSA**（SD 出口 IP 封锁，headless-download.mjs 已就绪，次日一条命令重试）
 - 环境坑：codex CLI（ChatGPT.app 内置 0.160.0）不在 ZCode PATH，symlink /opt/homebrew/bin/codex 修复
 
 ---
@@ -256,7 +261,7 @@ playwright 依赖说明：`PLAYWRIGHT_MODULE` 环境变量或 NODE_PATH；setup.
 
 ### 测试集扩充（v0.4 尾）
 
-test-resolve.json 新增 4 个 case（真值取自 私有文献库 已验证数据）：IEEE 绿灯、VLDB/10.14778 绿灯、Wiley-OA 绿灯、SSRN 黄灯。扩充后 10G/0R/4Y（黄灯均为限流期波动——Crossref ≥0.97 精确匹配单源在 S2/OpenAlex 限流期间撑住基本盘，验证了分层置信设计的价值）。测试集规模：14 title cases + 3 author cases。扩充原则：新出版商路线验证一篇就加一条绿灯；边界行为（预印本、标题漂移、重名）加黄灯；预期值一律权威 API 实测。
+test-resolve.json 新增 4 个 case（真值取自私有文献库已验证数据）：IEEE 绿灯、VLDB/10.14778 绿灯、Wiley-OA 绿灯、SSRN 黄灯。扩充后 10G/0R/4Y（黄灯均为限流期波动——Crossref ≥0.97 精确匹配单源在 S2/OpenAlex 限流期间撑住基本盘，验证了分层置信设计的价值）。测试集规模：14 title cases + 3 author cases。扩充原则：新出版商路线验证一篇就加一条绿灯；边界行为（预印本、标题漂移、重名）加黄灯；预期值一律权威 API 实测。
 
 ---
 
@@ -288,7 +293,7 @@ SKILL.md 的 Unpaywall 示例邮箱 `getpaper@example.com` 已被 API 列入拒�
 
 ### v0.5 补充 2：OpenAlex key 池接入
 
-用户指认 私有项目 项目已有 8 个 OpenAlex premium key（`scripts/openalex_keys.txt`，每 key 每日 1 万 credits，UTC 午夜重置；文件式管理而非环境变量）。resolve.mjs 接入三级来源：`OPENALEX_API_KEY` 环境变量 → `~/.config/get-paper/openalex_keys.txt` → 私有项目 key 池路径，请求间轮询分流（round-robin）。同批顺带支持 `S2_API_KEY`（x-api-key 头，与 私有文献库 爬虫同名变量——S2 是无 key 限流的最大瓶颈，有 key 收益最大）。
+用户指认维护者另一私有项目已有 8 个 OpenAlex premium key（`scripts/openalex_keys.txt`，每 key 每日 1 万 credits，UTC 午夜重置；文件式管理而非环境变量）。resolve.mjs 接入三级来源：`OPENALEX_API_KEY` 环境变量 → `~/.config/get-paper/openalex_keys.txt` → 私有项目 key 池路径，请求间轮询分流（round-robin）。同批顺带支持 `S2_API_KEY`（x-api-key 头，与维护者既有爬虫项目同名变量——S2 是无 key 限流的最大瓶颈，有 key 收益最大）。
 
 注意：ZCode 的 shell 不加载 ~/.zshrc，key 类配置走文件路径探测比环境变量可靠（这是本次选择文件式 key 池的原因之一）。
 
@@ -298,7 +303,7 @@ SKILL.md 的 Unpaywall 示例邮箱 `getpaper@example.com` 已被 API 列入拒�
 
 ### 冀置定案：API key 单一来源 = skill 自有配置文件
 
-- 移除 OPENALEX_API_KEY/OPENALEX_KEYS_FILE/S2_API_KEY 环境变量通道与 私有项目 路径探测——key 只读 `~/.config/get-paper/{openalex_keys.txt,s2_api_key.txt}`（setup.sh 第 3 步写入，600 权限）
+- 移除 OPENALEX_API_KEY/OPENALEX_KEYS_FILE/S2_API_KEY 环境变量通道与私有项目路径探测——key 只读 `~/.config/get-paper/{openalex_keys.txt,s2_api_key.txt}`（setup.sh 第 3 步写入，600 权限）
 - 决策依据：① 不依赖其他项目；② ZCode GUI shell 不加载 ~/.zshrc，环境变量在主力场景不可靠；③ 多 key 池文件形式更自然
 
 ---
@@ -329,11 +334,11 @@ SKILL.md 的 Unpaywall 示例邮箱 `getpaper@example.com` 已被 API 列入拒�
 
 ### 今日总结
 
-get-paper 完成：五源解析（含 key 池）、三路线下载（curl/IAB/无头）、双回归测试（红绿灯+路线）、跨平台配置、subagent 摊派验证（两次三发三中/全中）、C1 级静默失败清除。终态 13G/0R/4Y、下载实测 23/23（含 私有文献库 2 篇 + 自有论文 10 篇 + Bingsheng He 10 篇 + 回归）。
+get-paper 完成：五源解析（含 key 池）、三路线下载（curl/IAB/无头）、双回归测试（红绿灯+路线）、跨平台配置、subagent 摊派验证（两次三发三中/全中）、C1 级静默失败清除。终态 13G/0R/4Y、下载实测 23/23（含私有文献库 2 篇 + 自有论文 10 篇 + Bingsheng He 10 篇 + 回归）。
 
 ### 测试集扩充（v0.6 尾）：+3 真值 case，又抓一真 bug
 
-新增：AAAI 绿灯（oaPdf 直下）、Bingsheng He 作者绿灯、PVLDB 下载 case（10.14778 走 ACM 代理）。Bingsheng He case 立刻抓出 **OpenAlex 过滤语法 bug**：`publication_year:>=2015` 不被支持（静默异常 → fallback 到残缺 S2 档案），正确写法是区间 `2015-2026`。修复后 维护者 悬了两轮的老黄灯转绿（26 篇）——"档案波动"误诊实为语法 bug。终态 16G/0R/3Y（Nuo Chen 黄为真·重名消歧边界）。
+新增：AAAI 绿灯（oaPdf 直下）、Bingsheng He 作者绿灯、PVLDB 下载 case（10.14778 走 ACM 代理）。Bingsheng He case 立刻抓出 **OpenAlex 过滤语法 bug**：`publication_year:>=2015` 不被支持（静默异常 → fallback 到残缺 S2 档案），正确写法是区间 `2015-2026`。修复后维护者本人的作者档案悬了两轮的老黄灯转绿（26 篇）——"档案波动"误诊实为语法 bug。终态 16G/0R/3Y（Nuo Chen 黄为真·重名消歧边界）。
 
 扩充原则再确认：只加新维度（出版商/边界/失败模式），不加同质数量——每加一批新真值就抓出真 bug 的回报率是明证（今日三连：judgelrm 预期错、arxiv 字段 bug、过滤语法 bug）。
 
@@ -360,7 +365,7 @@ get-paper 完成：五源解析（含 key 池）、三路线下载（curl/IAB/�
 
 ### 默认下载目录：`./papers/` → `~/Downloads/`
 
-论文是终端产物不是项目文件，落在当前项目目录里两次被抓到（项目目录里翻出 papers/）。约定改为：用户指定优先，未指定用 `~/Downloads/`（Windows `%USERPROFILE%\Downloads`），不存在则创建。
+论文是终端产物不是项目文件，曾不止一次落在当时的项目目录里。约定改为：用户指定优先，未指定用 `~/Downloads/`（Windows `%USERPROFILE%\Downloads`），不存在则创建。
 
 ### 文档同步
 
